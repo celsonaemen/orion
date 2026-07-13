@@ -1,0 +1,83 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# NestJS and build outputs
+dist/
+build/
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Runtime and temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Prisma and local databases
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
+# Docker local data
+.docker-data/
+docker-data/
+
+# Dumps, backups and exports
+*.dump
+*.sql
+*.bak
+*.backup
+*.zip
+*.7z
+*.rar
+backups/
+dumps/
+exports/
+
+# Sensitive accounting and client files
+documentos-contabeis/
+documentos-clientes/
+clientes/
+client-files/
+exports-clientes/
+arquivos-clientes/
