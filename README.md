@@ -6,15 +6,20 @@ O objetivo é criar uma central própria para comunicação interna, usuários, 
 
 ## Situação atual
 
-O projeto está em construção e foi reiniciado do zero.
+O projeto está em construção, na Fase 0 - Fundação.
 
-Status atual:
+Estado atual:
 
-- fase atual: Fundação;
-- documentação inicial criada;
-- nenhuma aplicação implementada;
-- nenhuma dependência instalada;
-- nenhuma integração implementada.
+- monorepo pnpm criado;
+- frontend inicial criado em `apps/frontend`;
+- backend inicial criado em `apps/backend`;
+- pacote compartilhado criado em `packages/shared`;
+- endpoint `GET /health` criado no backend;
+- autenticação ainda não implementada;
+- chat ainda não implementado;
+- banco ainda não configurado;
+- Docker ainda não configurado;
+- integrações externas, IA e RAG ainda não implementados.
 
 ## Visão do produto
 
@@ -22,22 +27,83 @@ O Orion será uma camada interna de organização e comunicação do escritório
 
 Esses sistemas poderão ser integrados no futuro, quando houver análise técnica, autorização e desenho seguro.
 
-## Módulos planejados
+## Estrutura do monorepo
 
-- Orion Core;
-- autenticação;
-- usuários;
-- setores;
-- empresas;
-- permissões;
-- dashboard;
-- auditoria;
-- chat e comunicação em tempo real;
-- notificações;
-- tarefas e workflow;
-- integrações futuras;
-- RAG local;
-- IA local ou provider externo autorizado.
+```text
+apps/
+  frontend/
+  backend/
+packages/
+  shared/
+scripts/
+docs/
+.ai/
+```
+
+## Aplicações
+
+### Frontend
+
+Local: `apps/frontend`
+
+Stack inicial:
+
+- Next.js;
+- React;
+- TypeScript;
+- Tailwind CSS;
+- App Router.
+
+Tela atual:
+
+- nome Orion;
+- texto "Comunicação interna da contabilidade";
+- indicação "Orion Chat — Fundação técnica";
+- status visual de frontend funcionando.
+
+### Backend
+
+Local: `apps/backend`
+
+Stack inicial:
+
+- NestJS;
+- Node.js;
+- TypeScript;
+- validação preparada.
+
+Endpoint atual:
+
+```text
+GET /health
+```
+
+Resposta esperada:
+
+```json
+{
+  "status": "ok",
+  "service": "orion-backend"
+}
+```
+
+### Shared
+
+Local: `packages/shared`
+
+Pacote TypeScript reutilizável com tipos compartilhados iniciais.
+
+## Scripts
+
+Na raiz do repositório:
+
+```powershell
+pnpm install
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm dev
+```
 
 ## Stack planejada
 
@@ -47,7 +113,7 @@ Frontend:
 - React;
 - TypeScript;
 - Tailwind CSS;
-- Shadcn/UI.
+- Shadcn/UI em fase futura.
 
 Backend:
 
@@ -55,7 +121,7 @@ Backend:
 - Node.js;
 - TypeScript.
 
-Dados e infraestrutura:
+Dados e infraestrutura planejados:
 
 - PostgreSQL;
 - Prisma;

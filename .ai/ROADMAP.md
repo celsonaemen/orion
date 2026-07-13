@@ -6,7 +6,7 @@ Somente a Fase 0 está iniciada. As demais fases são planejamento e não devem 
 
 ## Fase 0 - Fundação
 
-Status: iniciada.
+Status: iniciada, com documentação versionada e monorepo base criado para revisão.
 
 Objetivos:
 
@@ -14,14 +14,20 @@ Objetivos:
 - memória permanente;
 - documentação;
 - decisões;
-- segurança.
+- segurança;
+- workspace pnpm;
+- frontend Next.js inicial;
+- backend NestJS inicial;
+- pacote compartilhado TypeScript;
+- ferramentas de lint, typecheck, build e formatação.
 
 Critério de saída:
 
 - documentação inicial revisada;
 - decisões arquiteturais registradas;
 - regras de desenvolvimento registradas;
-- aprovação para criar a estrutura do monorepo.
+- monorepo validado;
+- aprovação para avançar para PostgreSQL, Prisma e modelos iniciais.
 
 ## Fase 1 - Orion Core
 
@@ -36,6 +42,14 @@ Escopo:
 - permissões;
 - dashboard;
 - auditoria.
+
+Próxima etapa técnica planejada:
+
+- PostgreSQL;
+- Prisma;
+- modelos iniciais;
+- migrations iniciais;
+- base de configuração segura para ambiente local.
 
 ## Fase 2 - Comunicação
 

@@ -31,3 +31,5 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 25. O backend usará uma abstração para permitir Gemma, DeepSeek, LM Studio ou provedores externos.
 26. Nenhum dado real de cliente deve ser usado em testes, seeds ou exemplos.
 27. Documentação e memória permanente devem ser atualizadas após mudanças relevantes.
+28. O gerenciador de pacotes do monorepo será pnpm.
+29. A estrutura inicial do monorepo usará `apps/frontend`, `apps/backend` e `packages/shared`.

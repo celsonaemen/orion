@@ -9,11 +9,19 @@
 - Projeto reiniciado do zero.
 - Repositório oficial configurado localmente.
 - Documentação inicial criada.
-- Nenhuma aplicação implementada.
-- Nenhuma dependência instalada.
+- Monorepo base criado com pnpm workspace.
+- Frontend inicial criado em `apps/frontend` com Next.js, React, TypeScript e Tailwind CSS.
+- Backend inicial criado em `apps/backend` com NestJS e endpoint `GET /health`.
+- Pacote compartilhado criado em `packages/shared` com tipos TypeScript iniciais.
+- Ferramentas base de lint, typecheck, build e formatação configuradas.
+- Dependências definidas para instalação via pnpm.
+- Nenhuma autenticação implementada.
+- Nenhum chat implementado.
 - Nenhuma integração implementada.
 - Nenhum banco de dados criado.
 - Nenhum Docker configurado.
+- Nenhum Socket.IO configurado.
+- Nenhuma IA ou RAG implementados.
 
 ## Fase atual
 
@@ -21,7 +29,7 @@ Fase 0 - Fundação.
 
 ## Próximo passo
 
-Revisar a documentação inicial e aprovar a criação da estrutura do monorepo.
+Revisar a fundação técnica do monorepo e aprovar a próxima etapa: PostgreSQL, Prisma e modelos iniciais.
 
 ## Observações
 

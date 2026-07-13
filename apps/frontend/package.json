@@ -1,0 +1,26 @@
+{
+  "name": "@orion/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "lint": "eslint src next.config.mjs tailwind.config.ts postcss.config.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No frontend tests configured yet\""
+  },
+  "dependencies": {
+    "@orion/shared": "workspace:*",
+    "next": "^15.5.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
+  }
+}

@@ -2,37 +2,39 @@
 
 ## Estado da arquitetura
 
-Este documento descreve a arquitetura planejada. Nenhum item descrito aqui deve ser interpretado como implementado até que exista código, configuração e validação correspondente no repositório.
+Este documento descreve a arquitetura planejada e o estado técnico inicial já criado. Itens marcados como planejados não devem ser interpretados como implementados até que exista código, configuração e validação correspondente no repositório.
 
 ## Monorepo
 
-O Orion será organizado como monorepo para manter frontend, backend, pacotes compartilhados e documentação no mesmo repositório.
+O Orion está organizado como monorepo pnpm para manter frontend, backend, pacote compartilhado e documentação no mesmo repositório.
 
-Estrutura planejada:
+Estrutura atual:
 
 ```text
 apps/
-  web/
-  api/
+  frontend/
+  backend/
 packages/
   shared/
-  config/
-prisma/
 docs/
 .ai/
+scripts/
 ```
 
-Essa estrutura ainda não foi criada. Ela deverá ser proposta e revisada antes da implementação.
+Ainda não há banco, Docker, autenticação funcional, chat funcional, Socket.IO, integrações externas, IA ou RAG.
 
 ## Frontend
 
-Frontend planejado:
+Frontend criado:
 
 - Next.js;
 - React;
 - TypeScript;
 - Tailwind CSS;
-- Shadcn/UI.
+- App Router;
+- diretório `src/`.
+
+Shadcn/UI continua planejado para fases futuras de interface, mas ainda não foi configurado.
 
 Responsabilidades do frontend:
 
@@ -54,9 +56,15 @@ Telas futuras previstas:
 - notificações;
 - configurações.
 
+Tela atual:
+
+- página inicial simples do Orion Chat;
+- mensagem "Comunicação interna da contabilidade";
+- status visual de frontend funcionando.
+
 ## Backend
 
-Backend planejado:
+Backend criado:
 
 - NestJS;
 - Node.js;
@@ -67,6 +75,14 @@ Backend planejado:
 - repository pattern;
 - DTOs;
 - validação de entrada.
+
+Módulo atual:
+
+- health.
+
+Endpoint atual:
+
+- `GET /health`, retornando status operacional simples do backend.
 
 Módulos futuros previstos:
 
@@ -79,13 +95,12 @@ Módulos futuros previstos:
 - chat;
 - notifications;
 - audit-log;
-- health.
 
 Controllers devem receber requisições, validar o contrato de entrada e retornar respostas. Regras de negócio devem ficar em services ou use cases. Persistência deve passar por repositories.
 
 ## Banco de dados
 
-Banco planejado:
+Banco planejado, ainda não configurado:
 
 - PostgreSQL.
 
@@ -106,7 +121,7 @@ O desenho do banco deverá considerar isolamento por permissão, auditoria, rast
 
 ## Prisma
 
-Prisma será o ORM planejado para persistência. O schema deverá ser versionado e evoluído por migrations quando o banco for criado.
+Prisma será o ORM planejado para persistência. Prisma ainda não foi instalado nem configurado. O schema deverá ser versionado e evoluído por migrations quando o banco for criado.
 
 Regras planejadas:
 
@@ -117,7 +132,7 @@ Regras planejadas:
 
 ## Socket.IO
 
-Socket.IO será usado para comunicação em tempo real em fase futura.
+Socket.IO será usado para comunicação em tempo real em fase futura. Ainda não foi instalado nem configurado.
 
 Casos planejados:
 
@@ -131,7 +146,7 @@ Eventos em tempo real deverão respeitar autenticação, autorização e auditor
 
 ## Autenticação
 
-Autenticação planejada:
+Autenticação planejada, ainda não implementada:
 
 - JWT;
 - refresh token;
