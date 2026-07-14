@@ -8,7 +8,7 @@ Este documento descreve a fundacao atual de PostgreSQL e Prisma do Orion. Ele na
 - Prisma 7 configurado em `apps/backend`.
 - Migration inicial criada para identidade, acesso, sessoes e auditoria.
 - Seed ficticio criado para desenvolvimento local.
-- O Docker nao estava disponivel no PATH desta maquina durante a validacao desta etapa, entao migration e seed ainda precisam ser aplicados em um ambiente com Docker/PostgreSQL disponivel.
+- Migration e seed foram validados em ambiente local quando Docker Desktop/PostgreSQL estavam em execucao.
 
 ## Variaveis
 
@@ -134,10 +134,7 @@ Essa senha nunca deve ser usada fora do ambiente local.
 
 ## Ainda Nao Implementado
 
-- Login.
-- JWT.
-- Refresh token funcional.
-- Guards.
+- Tela de login.
 - CRUD de usuarios, setores, cargos ou permissoes.
 - Empresas.
 - Conversas.

@@ -23,7 +23,9 @@ Objetivos:
 - Docker Compose inicial para PostgreSQL local;
 - Prisma configurado;
 - modelos iniciais de identidade, acesso, sessão e auditoria;
-- seed fictício de desenvolvimento.
+- seed fictício de desenvolvimento;
+- autenticação backend inicial;
+- guards JWT e permissões explícitas.
 
 Critério de saída:
 
@@ -32,11 +34,11 @@ Critério de saída:
 - regras de desenvolvimento registradas;
 - monorepo validado;
 - validação local com Docker/PostgreSQL disponível;
-- aprovação para avançar para autenticação, guards e autorização por permissões.
+- aprovação para avançar para CRUD administrativo e aplicação das permissões nos módulos de negócio.
 
 ## Fase 1 - Orion Core
 
-Status: iniciada tecnicamente pela fundação de persistência. Funcionalidades de produto ainda não implementadas.
+Status: iniciada tecnicamente pela fundação de persistência e autenticação backend inicial. Funcionalidades administrativas e frontend de login ainda não implementadas.
 
 Escopo:
 
@@ -48,14 +50,21 @@ Escopo:
 - dashboard;
 - auditoria.
 
-Próxima etapa técnica planejada:
+Itens técnicos já iniciados:
 
 - autenticação;
 - hashing de senha no fluxo real;
 - JWT e refresh token;
 - guards;
-- decorators de permissão;
-- services e repositories para usuários, setores, cargos e permissões.
+- decorators de permissão.
+
+Próxima etapa técnica planejada:
+
+- tela de login;
+- CRUD administrativo de usuários, setores, cargos e permissões;
+- aplicação de guards nos módulos de negócio;
+- services e repositories para usuários, setores, cargos e permissões;
+- auditoria de ações administrativas.
 
 ## Fase 2 - Comunicação
 

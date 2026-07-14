@@ -20,9 +20,10 @@ Estado atual:
 - migration inicial criada para usuários, setores, cargos, permissões, sessões e auditoria;
 - seed fictício criado para desenvolvimento local;
 - endpoint `GET /health` criado no backend com verificação de banco;
-- autenticação ainda não implementada;
+- autenticação backend inicial implementada com login, refresh, logout e usuário atual;
+- guards iniciais de JWT e permissões explícitas implementados;
 - chat ainda não implementado;
-- banco ainda não aplicado neste ambiente porque Docker/PostgreSQL não está disponível no PATH;
+- banco local validado com Docker/PostgreSQL quando Docker Desktop está em execução;
 - frontend e backend ainda não rodam em Docker;
 - integrações externas, IA e RAG ainda não implementados.
 
@@ -95,6 +96,15 @@ Resposta esperada:
 
 Se o banco estiver indisponível, o endpoint deve responder erro de serviço sem expor URL, usuário, senha ou stack trace.
 
+Endpoints de autenticação atuais:
+
+```text
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+GET /auth/me
+```
+
 ### Shared
 
 Local: `packages/shared`
@@ -138,6 +148,8 @@ pnpm db:seed
 
 O seed usa apenas dados fictícios e e-mails `@orion.local`. Para desenvolvimento local, os usuários fictícios usam a senha `OrionDev123!`. Essa senha não deve ser usada fora do ambiente local.
 
+Para testar autenticação localmente, configure `JWT_SECRET` e `JWT_REFRESH_SECRET` fora do Git.
+
 ## Stack planejada
 
 Frontend:
@@ -179,6 +191,7 @@ Documentação geral:
 - `docs/overview.md`;
 - `docs/roles-and-permissions.md`;
 - `docs/database.md`;
+- `docs/authentication.md`;
 - `docs/glossary.md`.
 
 ## Avisos importantes

@@ -22,25 +22,28 @@
 - Migration inicial criada: `20260713203600_init_identity_and_access`.
 - Seed fictício criado com setores, cargos, permissões e usuários `@orion.local`.
 - Endpoint `GET /health` evoluído para verificar conectividade do banco.
-- Nenhuma autenticação implementada.
+- PostgreSQL local, migration e seed validados quando Docker Desktop está em execução.
+- Autenticação backend inicial implementada com `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`.
+- `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions(...)` e `@CurrentUser()` implementados.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
-- Nenhum banco de dados foi aplicado neste ambiente porque Docker não está disponível no PATH.
+- Nenhuma tela de login implementada.
+- Nenhum CRUD administrativo de usuários, setores, cargos ou permissões implementado.
 - Frontend e backend ainda não foram colocados em Docker.
 - Nenhum Socket.IO configurado.
 - Nenhuma IA ou RAG implementados.
 
 ## Fase atual
 
-Fase 0 - Fundação, com início técnico da persistência do Orion Core.
+Fase 1 - Orion Core iniciado tecnicamente no backend.
 
 ## Próximo passo
 
-Validar Docker/PostgreSQL local quando Docker estiver disponível, aplicar migration e seed, e depois avançar para autenticação, guards e autorização por permissões.
+Criar tela de login e iniciar CRUD administrativo de usuários, setores, cargos e permissões, aplicando guards e auditoria nas rotas protegidas.
 
 ## Observações
 
 - O repositório remoto oficial é `https://github.com/celsonaemen/orion.git`.
 - A documentação em `.ai/` é a fonte oficial de contexto para agentes e desenvolvedores.
 - Antes de qualquer implementação, decisões relevantes devem ser conferidas em `.ai/DECISIONS.md`.
-- Nesta máquina, `docker` não foi reconhecido no PowerShell durante a validação de 2026-07-13/2026-07-14.
+- Para rodar testes de integração de banco e auth, defina `DATABASE_URL`, `JWT_SECRET` e `JWT_REFRESH_SECRET` apenas no ambiente local.

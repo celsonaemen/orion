@@ -19,6 +19,7 @@
   "dependencies": {
     "@nestjs/common": "^11.1.8",
     "@nestjs/core": "^11.1.8",
+    "@nestjs/jwt": "11.0.2",
     "@nestjs/platform-express": "^11.1.8",
     "@orion/shared": "workspace:*",
     "@prisma/adapter-pg": "7.8.0",
