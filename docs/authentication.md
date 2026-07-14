@@ -27,16 +27,16 @@ Implementado no frontend:
 - Renovacao de access token via refresh token.
 - Logout com revogacao no backend e limpeza local.
 - Middleware para bloquear dashboard sem cookie de sessao.
-- Validacao de `Origin`/`Sec-Fetch-Site` nos POSTs do BFF.
-- Validacao de `Content-Type: application/json` no login do BFF.
+- Validacao de `Origin`/`Sec-Fetch-Site` nas operacoes mutaveis do BFF.
+- Validacao de `Content-Type: application/json` nas operacoes mutaveis com body.
 
 Ainda nao implementado:
 
-- CRUD de usuarios.
+- CRUD de cargos e permissoes.
 - Recuperacao de senha.
 - Troca de senha.
 - Politica de bloqueio por tentativas.
-- RBAC em modulos de negocio.
+- RBAC completo em todos os modulos de negocio.
 
 ## Variaveis
 
@@ -116,7 +116,7 @@ No frontend, a renovacao usa:
 POST /api/auth/refresh
 ```
 
-O BFF le o refresh token do cookie `HttpOnly`, chama `POST /auth/refresh`, grava o novo par de tokens em cookies e retorna apenas o usuario. Renovacoes simultaneas sao coordenadas para evitar chamadas duplicadas desnecessarias.
+O BFF le o refresh token do cookie `HttpOnly`, chama `POST /auth/refresh`, grava o novo par de tokens em cookies e retorna apenas o usuario. Renovacoes simultaneas sao coordenadas por processo e um resultado bem-sucedido fica reutilizavel por uma janela curta para atender requisicoes atrasadas com o cookie anterior. Em falha transitoria o cookie e preservado; somente uma sessao confirmada como invalida limpa os cookies.
 
 ## Logout
 
@@ -176,6 +176,8 @@ Usar `PermissionsGuard` com `@RequirePermissions` para exigir permissoes explici
 
 A hierarquia Gerente, Coordenador, Setorial e Auxiliar existe como apoio operacional. A autorizacao real deve depender de permissoes explicitas.
 
+Na administracao inicial, os endpoints de usuarios e setores usam permissoes explicitas como `users.read`, `users.create`, `users.update`, `users.change-status`, `sectors.read`, `sectors.create` e `sectors.update`. O frontend apenas oculta ou desabilita acoes; o backend continua sendo a autoridade final. A leitura de usuarios e global para nivel hierarquico 1 e limitada ao proprio setor para os demais niveis.
+
 ## Cuidados
 
 - Nao registrar tokens em logs.
@@ -185,4 +187,4 @@ A hierarquia Gerente, Coordenador, Setorial e Auxiliar existe como apoio operaci
 - Nao expor stack trace, segredo JWT ou hash de token em respostas.
 - Nao armazenar refresh token em `localStorage`.
 - Cookies de token devem ser `HttpOnly`, `SameSite=Lax` e `Secure` em producao.
-- POSTs do BFF devem rejeitar origem cross-site e mensagens fora do formato esperado.
+- Operacoes mutaveis do BFF devem rejeitar origem cross-site e mensagens fora do formato esperado.

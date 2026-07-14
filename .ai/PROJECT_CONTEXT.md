@@ -39,7 +39,7 @@ O Orion Core será a primeira base funcional do sistema. Ele deverá preparar:
 - base para notificações;
 - base para comunicação interna.
 
-Nesta tarefa inicial, nenhuma dessas funcionalidades está implementada. Esta fase cria apenas a memória permanente e documentação base do projeto.
+O estado atual ja inclui a fundacao do monorepo, PostgreSQL/Prisma, autenticacao, App Shell e administracao inicial de usuarios e setores. Empresas, cargos/permissoes administrativos, comunicacao real e demais modulos continuam pendentes.
 
 ## Sistemas que o Orion não substitui
 
@@ -57,25 +57,19 @@ Esses sistemas poderão ser integrados futuramente, quando houver análise técn
 
 ## Escopo atual
 
-O escopo atual é a Fundação do projeto:
+O escopo atual e a Fase 1 do Orion Core:
 
-- criar o repositório local oficial;
-- criar a memória permanente em `.ai/`;
-- registrar decisões arquiteturais;
-- registrar regras de desenvolvimento;
-- registrar regras de segurança;
-- criar documentação inicial em `docs/`;
-- preparar o projeto para futura criação do monorepo.
+- manter autenticacao e sessoes seguras;
+- administrar usuarios e setores com permissoes explicitas;
+- consolidar dashboard e App Shell;
+- preparar CRUD de cargos, permissoes e empresas;
+- ampliar auditoria administrativa;
+- manter documentacao e testes alinhados ao codigo real.
 
 ## Limites atuais
 
-Nesta fase não deve ser implementado:
+Nesta fase ainda nao deve ser implementado sem aprovacao especifica:
 
-- frontend;
-- backend;
-- banco de dados;
-- Docker;
-- autenticação;
 - chat;
 - integrações externas;
 - IA;

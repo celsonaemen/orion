@@ -8,7 +8,7 @@
     "lint": "eslint src",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --fileParallelism=false",
     "db:generate": "prisma generate --config prisma.config.ts",
     "db:migrate": "prisma migrate dev --config prisma.config.ts --name init_identity_and_access",
     "db:migrate:deploy": "prisma migrate deploy --config prisma.config.ts",

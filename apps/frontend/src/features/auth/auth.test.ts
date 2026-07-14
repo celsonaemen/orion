@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createRefreshCoordinator } from "./refresh-coordinator.ts";
+import { createKeyedRefreshCoordinator, createRefreshCoordinator } from "./refresh-coordinator.ts";
 import { validateLoginFields } from "./validation.ts";
 import {
   hasJsonContentTypeHeader,
@@ -46,6 +46,34 @@ test("createRefreshCoordinator reuses a refresh already in flight", async () => 
   assert.equal(first, "new-session");
   assert.equal(second, "new-session");
   assert.equal(calls, 1);
+});
+
+test("keyed refresh coordinator reuses a successful result for late requests", async () => {
+  let calls = 0;
+  const refresh = createKeyedRefreshCoordinator(
+    async (token: string) => {
+      calls += 1;
+      return `${token}-${calls}`;
+    },
+    {
+      reuseForMs: 10,
+      shouldReuse: () => true,
+    },
+  );
+
+  const first = await refresh("old-token");
+  const late = await refresh("old-token");
+
+  assert.equal(first, "old-token-1");
+  assert.equal(late, first);
+  assert.equal(calls, 1);
+
+  await new Promise((resolve) => {
+    setTimeout(resolve, 15);
+  });
+
+  assert.equal(await refresh("old-token"), "old-token-2");
+  assert.equal(calls, 2);
 });
 
 test("isSameOriginHeaders rejects cross-site POST metadata", () => {

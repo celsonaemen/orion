@@ -25,7 +25,8 @@
 - PostgreSQL local validado com container `orion-postgres` saudável usando imagem `postgres:17-alpine`.
 - PostgreSQL via Docker publicado localmente em `127.0.0.1:5433->5432/tcp` para evitar conflito com servicos locais na porta 5432 do Windows.
 - Migration e seed validados localmente em 2026-07-14.
-- Dados fictícios confirmados após validação: 7 setores, 4 cargos, 16 permissões, 22 vínculos cargo/permissão, 5 usuários base do seed e 11 usuários fictícios totais após testes de integração.
+- O seed base define 7 setores, 4 cargos, 13 permissoes, 22 vinculos cargo/permissao e 5 usuarios ficticios.
+- O volume local preserva 43 usuarios, 32 permissoes, 1 sessao, 1 refresh token e 98 logs de auditoria, incluindo artefatos ficticios residuais de execucoes antigas ou interrompidas; nenhuma limpeza destrutiva foi executada nesta revisao.
 - `GET /health` validado com resposta `database: "connected"`.
 - `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso em 2026-07-14.
 - Autenticação backend inicial implementada com `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`.
@@ -36,21 +37,31 @@
 - Access token e refresh token são mantidos em cookies `HttpOnly`; refresh token não usa `localStorage`.
 - App Shell autenticado inicial implementado para rotas internas.
 - Sidebar, header, menu mobile, menu do usuario e tema claro/escuro preparados no frontend.
-- Rotas placeholder autenticadas criadas para `/chat`, `/companies`, `/users`, `/sectors`, `/notifications`, `/admin` e `/settings`.
+- Rotas placeholder autenticadas criadas para `/chat`, `/companies`, `/notifications`, `/admin` e `/settings`.
+- Administracao inicial de usuarios implementada em `/users`, com listagem, busca, filtros, paginacao, criacao, edicao e ativacao/desativacao.
+- Administracao inicial de setores implementada em `/sectors`, com listagem, busca, ordenacao, criacao, edicao e status ativo/inativo.
+- Backend possui `UsersModule` e `SectorsModule` com endpoints protegidos por `JwtAuthGuard`, `PermissionsGuard` e permissoes explicitas.
+- Frontend possui BFF `/api/users` e `/api/sectors`, preservando tokens em cookies `HttpOnly`.
+- Leituras de usuarios para perfis nao gerenciais com `users.read` ficam limitadas ao proprio setor; gerente mantem visao global.
+- Desativar usuario revoga sessoes e refresh tokens ativos, com cobertura integrada do token de acesso ja emitido.
+- O BFF coordena renovacoes simultaneas e atrasadas por processo, preserva cookies em indisponibilidade transitoria e limpa a sessao apenas quando o backend confirma sessao invalida.
+- Testes de banco, autenticacao e administracao limpam somente os artefatos criados pela propria suite.
+- Validacao de 2026-07-14 concluiu `pnpm lint`, `pnpm typecheck`, 30 testes backend, 18 testes frontend e `pnpm build` com sucesso.
+- As contagens de usuarios, permissoes, sessoes, refresh tokens e logs permaneceram identicas antes e depois da suite completa.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
-- Nenhum CRUD administrativo de usuários, setores, cargos ou permissões implementado.
+- Nenhum CRUD administrativo de cargos ou permissoes implementado.
 - Frontend e backend ainda não foram colocados em Docker.
 - Nenhum Socket.IO configurado.
 - Nenhuma IA ou RAG implementados.
 
 ## Fase atual
 
-Fase 1 - Orion Core iniciado tecnicamente no backend.
+Fase 1 - Orion Core iniciado tecnicamente no frontend e no backend.
 
 ## Próximo passo
 
-Validar o App Shell autenticado antes de avançar para CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat real.
+Preparar a branch administrativa validada para commit e revisao humana antes de avancar para CRUD de cargos/permissoes, empresas ou Orion Chat real.
 
 ## Observações
 

@@ -1,6 +1,6 @@
 # Banco de Dados do Orion
 
-Este documento descreve a fundacao atual de PostgreSQL e Prisma do Orion. Ele nao indica que autenticacao, chat, CRUD ou permissoes funcionais ja estejam implementados.
+Este documento descreve a fundacao atual de PostgreSQL e Prisma do Orion. Autenticacao e administracao inicial de usuarios/setores ja usam essa base; chat, empresas e CRUD de cargos/permissoes continuam pendentes.
 
 ## Estado Atual
 
@@ -135,10 +135,12 @@ Resultado confirmado:
 - seed ficticio executado sem expor hash de senha ou token;
 - 7 setores;
 - 4 cargos;
-- 16 permissoes no banco apos testes de integracao;
+- 13 permissoes definidas pelo seed base;
 - 22 vinculos entre cargos e permissoes;
 - 5 usuarios base do seed;
-- 11 usuarios ficticios no total apos testes de integracao criarem registros `@orion.local` adicionais;
+- suites de integracao rastreiam e removem somente os registros que criam;
+- contagens de usuarios, permissoes, sessoes, refresh tokens e logs permaneceram identicas antes e depois da suite completa;
+- o volume local ainda preserva residuos ficticios de testes antigos, sem limpeza destrutiva nesta revisao;
 - `GET /health` retornando `database: "connected"`;
 - `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
 
@@ -151,10 +153,11 @@ Resultado confirmado:
 - Refresh tokens devem ser armazenados somente como hash.
 - Auditoria usa `metadata` JSON e nao deve armazenar senhas, tokens ou conteudo completo de mensagens.
 - Prisma 7 usa `prisma.config.ts` e `@prisma/adapter-pg`.
+- Testes nunca devem executar `deleteMany()` global em sessoes, tokens ou dados compartilhados do banco local.
 
 ## Ainda Nao Implementado
 
-- CRUD de usuarios, setores, cargos ou permissoes.
+- CRUD de cargos ou permissoes.
 - Empresas.
 - Conversas.
 - Mensagens.

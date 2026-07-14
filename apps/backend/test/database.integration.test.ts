@@ -35,6 +35,8 @@ describeWithDatabase("database integration", () => {
   let prisma: PrismaClient;
   let app: INestApplication;
   let databaseAvailable = false;
+  const createdPermissionIds: string[] = [];
+  const createdUserIds: string[] = [];
 
   beforeAll(async () => {
     databaseAvailable = await canConnect();
@@ -49,6 +51,17 @@ describeWithDatabase("database integration", () => {
   });
 
   afterAll(async () => {
+    if (prisma) {
+      await prisma.auditLog.deleteMany({ where: { resourceId: { in: createdUserIds } } });
+      await prisma.refreshToken.deleteMany({ where: { userId: { in: createdUserIds } } });
+      await prisma.userSession.deleteMany({ where: { userId: { in: createdUserIds } } });
+      await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
+      await prisma.rolePermission.deleteMany({
+        where: { permissionId: { in: createdPermissionIds } },
+      });
+      await prisma.permission.deleteMany({ where: { id: { in: createdPermissionIds } } });
+    }
+
     await app?.close();
     await prisma?.$disconnect();
   });
@@ -85,7 +98,7 @@ describeWithDatabase("database integration", () => {
     const passwordHash = await bcrypt.hash("OrionTest123!", 10);
     const role = await prisma.role.findUniqueOrThrow({ where: { slug: "auxiliar" } });
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: `duplicate-${suffix}@orion.local`,
         name: `Usuário Teste ${suffix}`,
@@ -93,6 +106,7 @@ describeWithDatabase("database integration", () => {
         roleId: role.id,
       },
     });
+    createdUserIds.push(user.id);
 
     await expect(
       prisma.user.create({
@@ -110,12 +124,13 @@ describeWithDatabase("database integration", () => {
     expect(databaseAvailable).toBe(true);
     const code = `test.permission.${randomUUID()}`;
 
-    await prisma.permission.create({
+    const permission = await prisma.permission.create({
       data: {
         code,
         description: "Permissão fictícia de teste.",
       },
     });
+    createdPermissionIds.push(permission.id);
 
     await expect(
       prisma.permission.create({
@@ -147,6 +162,7 @@ describeWithDatabase("database integration", () => {
         sector: true,
       },
     });
+    createdUserIds.push(user.id);
 
     expect(user.role.slug).toBe("auxiliar");
     expect(user.sector?.slug).toBe("fiscal");
