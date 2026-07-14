@@ -8,7 +8,7 @@ Este documento descreve a fundacao atual de PostgreSQL e Prisma do Orion. Ele na
 - Prisma 7 configurado em `apps/backend`.
 - Migration inicial criada para identidade, acesso, sessoes e auditoria.
 - Seed ficticio criado para desenvolvimento local.
-- O Docker nao estava disponivel no PATH desta maquina durante a validacao desta etapa, entao migration e seed ainda precisam ser aplicados em um ambiente com Docker/PostgreSQL disponivel.
+- Migration e seed validados localmente com Docker Desktop/PostgreSQL em execucao.
 
 ## Variaveis
 
@@ -19,6 +19,8 @@ DATABASE_URL=postgresql://orion:orion_dev@localhost:5432/orion?schema=public
 ```
 
 A senha `orion_dev` e ficticia e exclusiva para desenvolvimento local.
+
+O PostgreSQL publica a porta `5432` somente em `127.0.0.1`, evitando acesso direto de outros computadores da rede ao banco de desenvolvimento.
 
 ## Iniciar PostgreSQL
 
@@ -121,6 +123,24 @@ Usuarios ficticios:
 Senha ficticia de desenvolvimento local: `OrionDev123!`
 
 Essa senha nunca deve ser usada fora do ambiente local.
+
+## Validacao Local Confirmada
+
+Validacao executada em 2026-07-14 com `orion-postgres` saudavel.
+
+Resultado confirmado:
+
+- migration `20260713203600_init_identity_and_access` aplicada;
+- tabelas criadas: `Sector`, `Role`, `Permission`, `RolePermission`, `User`, `RefreshToken`, `UserSession`, `AuditLog` e `_prisma_migrations`;
+- seed ficticio executado sem expor hash de senha ou token;
+- 7 setores;
+- 4 cargos;
+- 16 permissoes no banco apos testes de integracao;
+- 22 vinculos entre cargos e permissoes;
+- 5 usuarios base do seed;
+- 11 usuarios ficticios no total apos testes de integracao criarem registros `@orion.local` adicionais;
+- `GET /health` retornando `database: "connected"`;
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
 
 ## Decisoes Tecnicas
 

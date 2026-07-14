@@ -22,7 +22,7 @@ Estado atual:
 - endpoint `GET /health` criado no backend com verificação de banco;
 - autenticação ainda não implementada;
 - chat ainda não implementado;
-- banco ainda não aplicado neste ambiente porque Docker/PostgreSQL não está disponível no PATH;
+- banco local validado com Docker/PostgreSQL em `orion-postgres`;
 - frontend e backend ainda não rodam em Docker;
 - integrações externas, IA e RAG ainda não implementados.
 
@@ -137,6 +137,14 @@ pnpm db:seed
 ```
 
 O seed usa apenas dados fictícios e e-mails `@orion.local`. Para desenvolvimento local, os usuários fictícios usam a senha `OrionDev123!`. Essa senha não deve ser usada fora do ambiente local.
+
+Validação local confirmada em 2026-07-14:
+
+- container `orion-postgres` saudável com imagem `postgres:17-alpine`;
+- migration `20260713203600_init_identity_and_access` aplicada;
+- seed fictício executado;
+- `GET /health` retornando `database: "connected"`;
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
 
 ## Stack planejada
 

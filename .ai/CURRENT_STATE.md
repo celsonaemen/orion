@@ -22,10 +22,14 @@
 - Migration inicial criada: `20260713203600_init_identity_and_access`.
 - Seed fictício criado com setores, cargos, permissões e usuários `@orion.local`.
 - Endpoint `GET /health` evoluído para verificar conectividade do banco.
+- PostgreSQL local validado com container `orion-postgres` saudável usando imagem `postgres:17-alpine`.
+- Migration e seed validados localmente em 2026-07-14.
+- Dados fictícios confirmados após validação: 7 setores, 4 cargos, 16 permissões, 22 vínculos cargo/permissão, 5 usuários base do seed e 11 usuários fictícios totais após testes de integração.
+- `GET /health` validado com resposta `database: "connected"`.
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso em 2026-07-14.
 - Nenhuma autenticação implementada.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
-- Nenhum banco de dados foi aplicado neste ambiente porque Docker não está disponível no PATH.
 - Frontend e backend ainda não foram colocados em Docker.
 - Nenhum Socket.IO configurado.
 - Nenhuma IA ou RAG implementados.
@@ -36,11 +40,11 @@ Fase 0 - Fundação, com início técnico da persistência do Orion Core.
 
 ## Próximo passo
 
-Validar Docker/PostgreSQL local quando Docker estiver disponível, aplicar migration e seed, e depois avançar para autenticação, guards e autorização por permissões.
+Avançar para autenticação, guards e autorização por permissões após revisão da fundação PostgreSQL/Prisma.
 
 ## Observações
 
 - O repositório remoto oficial é `https://github.com/celsonaemen/orion.git`.
 - A documentação em `.ai/` é a fonte oficial de contexto para agentes e desenvolvedores.
 - Antes de qualquer implementação, decisões relevantes devem ser conferidas em `.ai/DECISIONS.md`.
-- Nesta máquina, `docker` não foi reconhecido no PowerShell durante a validação de 2026-07-13/2026-07-14.
+- `.env` não foi criado nem versionado; `DATABASE_URL` foi usada somente como variável local de processo durante a validação.
