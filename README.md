@@ -14,11 +14,16 @@ Estado atual:
 - frontend inicial criado em `apps/frontend`;
 - backend inicial criado em `apps/backend`;
 - pacote compartilhado criado em `packages/shared`;
-- endpoint `GET /health` criado no backend;
+- PostgreSQL local preparado via `docker-compose.yml`;
+- Prisma 7 configurado no backend;
+- modelos iniciais de identidade, acesso, sessão e auditoria criados;
+- migration inicial criada para usuários, setores, cargos, permissões, sessões e auditoria;
+- seed fictício criado para desenvolvimento local;
+- endpoint `GET /health` criado no backend com verificação de banco;
 - autenticação ainda não implementada;
 - chat ainda não implementado;
-- banco ainda não configurado;
-- Docker ainda não configurado;
+- banco local validado com Docker/PostgreSQL em `orion-postgres`;
+- frontend e backend ainda não rodam em Docker;
 - integrações externas, IA e RAG ainda não implementados.
 
 ## Visão do produto
@@ -83,9 +88,12 @@ Resposta esperada:
 ```json
 {
   "status": "ok",
-  "service": "orion-backend"
+  "service": "orion-backend",
+  "database": "connected"
 }
 ```
+
+Se o banco estiver indisponível, o endpoint deve responder erro de serviço sem expor URL, usuário, senha ou stack trace.
 
 ### Shared
 
@@ -104,6 +112,39 @@ pnpm typecheck
 pnpm build
 pnpm dev
 ```
+
+Scripts de banco:
+
+```powershell
+pnpm db:generate
+pnpm db:migrate
+pnpm db:migrate:deploy
+pnpm db:seed
+pnpm db:studio
+pnpm db:reset
+```
+
+`pnpm db:reset` é destrutivo e deve ser usado somente em desenvolvimento local.
+
+## Banco de dados local
+
+O PostgreSQL local é preparado por Docker Compose:
+
+```powershell
+docker compose up -d postgres
+pnpm db:migrate
+pnpm db:seed
+```
+
+O seed usa apenas dados fictícios e e-mails `@orion.local`. Para desenvolvimento local, os usuários fictícios usam a senha `OrionDev123!`. Essa senha não deve ser usada fora do ambiente local.
+
+Validação local confirmada em 2026-07-14:
+
+- container `orion-postgres` saudável com imagem `postgres:17-alpine`;
+- migration `20260713203600_init_identity_and_access` aplicada;
+- seed fictício executado;
+- `GET /health` retornando `database: "connected"`;
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
 
 ## Stack planejada
 
@@ -145,6 +186,7 @@ Documentação geral:
 
 - `docs/overview.md`;
 - `docs/roles-and-permissions.md`;
+- `docs/database.md`;
 - `docs/glossary.md`.
 
 ## Avisos importantes

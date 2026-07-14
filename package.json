@@ -9,6 +9,12 @@
     "lint": "corepack pnpm --recursive lint",
     "typecheck": "corepack pnpm --recursive typecheck",
     "test": "corepack pnpm --recursive test",
+    "db:generate": "corepack pnpm --filter @orion/backend db:generate",
+    "db:migrate": "corepack pnpm --filter @orion/backend db:migrate",
+    "db:migrate:deploy": "corepack pnpm --filter @orion/backend db:migrate:deploy",
+    "db:seed": "corepack pnpm --filter @orion/backend db:seed",
+    "db:studio": "corepack pnpm --filter @orion/backend db:studio",
+    "db:reset": "corepack pnpm --filter @orion/backend db:reset",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

@@ -69,6 +69,7 @@ docker-data/
 # Dumps, backups and exports
 *.dump
 *.sql
+!apps/backend/prisma/migrations/**/*.sql
 *.bak
 *.backup
 *.zip

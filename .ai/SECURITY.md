@@ -28,7 +28,9 @@
 
 - Sessões devem ter expiração.
 - Refresh tokens devem poder ser revogados.
+- Refresh tokens devem ser armazenados somente como hash.
 - Senhas devem ser protegidas com hashing adequado.
+- Seeds podem usar apenas credenciais fictícias de desenvolvimento local.
 - Comunicação deve usar criptografia em trânsito em ambientes publicados.
 
 ## Auditoria
@@ -36,6 +38,7 @@
 - Ações sensíveis devem gerar logs de auditoria.
 - Logs de auditoria devem registrar ator, ação, alvo e horário.
 - Logs não devem conter segredos.
+- Logs não devem conter senhas, tokens, hashes de tokens ou conteúdo completo de mensagens.
 - Logs devem ser úteis para revisão de acessos e alterações.
 
 ## Ambientes
@@ -43,6 +46,8 @@
 - Desenvolvimento e produção devem ser separados.
 - Dados reais não devem ser usados em desenvolvimento local sem autorização explícita.
 - Configurações de ambiente devem ser externas ao código.
+- A senha `orion_dev` do Docker Compose é apenas para desenvolvimento local.
+- `.env.example` deve conter somente placeholders e valores fictícios.
 
 ## Retenção de mensagens
 

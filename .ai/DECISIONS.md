@@ -33,3 +33,14 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 27. Documentação e memória permanente devem ser atualizadas após mudanças relevantes.
 28. O gerenciador de pacotes do monorepo será pnpm.
 29. A estrutura inicial do monorepo usará `apps/frontend`, `apps/backend` e `packages/shared`.
+30. PostgreSQL local será iniciado por Docker Compose somente para desenvolvimento nesta fase.
+31. A imagem local do PostgreSQL será fixada em `postgres:17-alpine`, sem uso de `latest`.
+32. Prisma 7 será usado com `prisma.config.ts`, mantendo `DATABASE_URL` fora do `schema.prisma`.
+33. O Prisma Client usará `@prisma/adapter-pg` para conexão direta com PostgreSQL.
+34. Identificadores iniciais usarão UUID nativo do PostgreSQL de forma consistente.
+35. `User.sectorId` será opcional para permitir usuários administrativos ou técnicos sem setor operacional, mas usuários de negócio devem ser vinculados a setor quando aplicável.
+36. Usuários com histórico não devem ser removidos fisicamente; o modelo usa `deletedAt` para exclusão lógica futura.
+37. Setores e cargos usam `isActive` para desativação operacional.
+38. Refresh tokens serão armazenados somente como hash.
+39. Logs de auditoria podem existir sem ator autenticado para permitir registro de eventos anônimos ou falhas antes do login.
+40. O endpoint `GET /health` deve verificar o banco sem expor URL, usuário, senha, stack trace ou detalhes internos sensíveis.
