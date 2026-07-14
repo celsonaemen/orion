@@ -34,6 +34,9 @@
 - Dashboard autenticado inicial implementado em `/dashboard`.
 - BFF de autenticação implementado no frontend com `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me`.
 - Access token e refresh token são mantidos em cookies `HttpOnly`; refresh token não usa `localStorage`.
+- App Shell autenticado inicial implementado para rotas internas.
+- Sidebar, header, menu mobile, menu do usuario e tema claro/escuro preparados no frontend.
+- Rotas placeholder autenticadas criadas para `/chat`, `/companies`, `/users`, `/sectors`, `/notifications`, `/admin` e `/settings`.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
 - Nenhum CRUD administrativo de usuários, setores, cargos ou permissões implementado.
@@ -47,7 +50,7 @@ Fase 1 - Orion Core iniciado tecnicamente no backend.
 
 ## Próximo passo
 
-Revisar a autenticação frontend inicial antes de avançar para CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat.
+Validar o App Shell autenticado antes de avançar para CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat real.
 
 ## Observações
 

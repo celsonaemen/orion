@@ -54,3 +54,6 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 48. O refresh token não será armazenado em `localStorage`; renovações simultâneas serão coordenadas no BFF e no cliente.
 49. A proteção inicial de rotas autenticadas usará middleware do Next.js para bloquear acesso sem cookie de sessão e validação real via BFF.
 50. PostgreSQL local via Docker Compose usara `127.0.0.1:5433:5432` em desenvolvimento para evitar conflito com servicos locais na porta 5432, mantendo o banco restrito ao localhost.
+51. O App Shell autenticado sera o layout compartilhado das rotas internas, mantendo autenticacao via BFF e usando placeholders para modulos ainda nao implementados.
+52. A navegacao principal ficara centralizada em configuracao propria para futura aplicacao de permissoes sem implementar RBAC completo nesta etapa.
+53. O tema do frontend usara variaveis CSS e preferencia local do navegador, sem biblioteca externa de tema.

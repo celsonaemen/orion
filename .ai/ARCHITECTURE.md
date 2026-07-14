@@ -69,6 +69,10 @@ Tela atual:
 - rota `/login` com formulário de acesso;
 - rota `/dashboard` autenticada exibindo usuário, cargo, setor e e-mail;
 - Route Handlers `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me` como BFF para o backend.
+- App Shell autenticado compartilhado para rotas internas;
+- sidebar com navegacao principal e placeholders para modulos futuros;
+- header com usuario autenticado, tema, notificacoes placeholder e menu de usuario;
+- rotas placeholder autenticadas para `/chat`, `/companies`, `/users`, `/sectors`, `/notifications`, `/admin` e `/settings`.
 
 ## Backend
 
@@ -198,10 +202,11 @@ Autenticação frontend inicial implementada:
 
 - página `/login`;
 - dashboard autenticado em `/dashboard`;
+- App Shell autenticado para as rotas internas;
 - BFF Next.js para chamar o backend sem expor tokens ao JavaScript do navegador;
 - access token e refresh token em cookies `HttpOnly`;
 - refresh token não usa `localStorage`;
-- middleware bloqueia dashboard sem cookie de sessão;
+- middleware bloqueia rotas autenticadas sem cookie de sessão;
 - cliente redireciona para `/login` quando a sessão expira.
 
 Ainda não há recuperação de senha, troca de senha ou bloqueio por tentativas.

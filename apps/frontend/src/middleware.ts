@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { protectedRoutes } from "./features/app-shell/routes";
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "./lib/auth/cookie-names";
 
 function hasSessionCookie(request: NextRequest) {
@@ -9,8 +10,11 @@ function hasSessionCookie(request: NextRequest) {
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const hasSession = hasSessionCookie(request);
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
 
-  if (pathname.startsWith("/dashboard") && !hasSession) {
+  if (isProtectedRoute && !hasSession) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
@@ -24,5 +28,15 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*"],
+  matcher: [
+    "/login",
+    "/dashboard/:path*",
+    "/chat/:path*",
+    "/companies/:path*",
+    "/users/:path*",
+    "/sectors/:path*",
+    "/notifications/:path*",
+    "/admin/:path*",
+    "/settings/:path*",
+  ],
 };

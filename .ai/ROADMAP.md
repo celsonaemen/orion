@@ -61,6 +61,10 @@ Itens técnicos já iniciados:
 - BFF de autenticação no Next.js;
 - cookies `HttpOnly` para tokens;
 - dashboard autenticado inicial.
+- App Shell autenticado inicial;
+- navegacao principal para modulos futuros;
+- placeholders autenticados para chat, empresas, usuarios, setores, notificacoes, administracao e configuracoes;
+- tema claro/escuro preparado.
 
 Próxima etapa técnica planejada:
 
