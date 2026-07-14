@@ -1,5 +1,6 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import "dotenv/config";
 
 import { AppModule } from "./app.module";
 
@@ -10,8 +11,8 @@ async function bootstrap() {
     new ValidationPipe({
       forbidNonWhitelisted: true,
       transform: true,
-      whitelist: true
-    })
+      whitelist: true,
+    }),
   );
 
   const port = Number(process.env.BACKEND_PORT ?? 3001);

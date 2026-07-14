@@ -21,7 +21,9 @@ docs/
 scripts/
 ```
 
-Ainda não há banco, Docker, autenticação funcional, chat funcional, Socket.IO, integrações externas, IA ou RAG.
+Há configuração inicial de PostgreSQL local, Prisma e migration de identidade/acesso. A aplicação das migrations depende de um PostgreSQL disponível.
+
+Ainda não há autenticação funcional, chat funcional, Socket.IO, integrações externas, IA ou RAG.
 
 ## Frontend
 
@@ -79,10 +81,12 @@ Backend criado:
 Módulo atual:
 
 - health.
+- database;
+- prisma.
 
 Endpoint atual:
 
-- `GET /health`, retornando status operacional simples do backend.
+- `GET /health`, retornando status operacional do backend e conectividade do banco quando PostgreSQL estiver disponível.
 
 Módulos futuros previstos:
 
@@ -100,28 +104,50 @@ Controllers devem receber requisições, validar o contrato de entrada e retorna
 
 ## Banco de dados
 
-Banco planejado, ainda não configurado:
+Banco planejado e configurado para desenvolvimento local:
 
 - PostgreSQL.
 
-Entidades iniciais planejadas:
+Configuração atual:
+
+- `docker-compose.yml` com serviço `postgres`;
+- imagem `postgres:17-alpine`;
+- volume nomeado `orion_postgres_data`;
+- variáveis locais fictícias de desenvolvimento;
+- healthcheck com `pg_isready`.
+
+Entidades iniciais criadas no Prisma:
 
 - User;
 - Sector;
-- Company;
 - Role;
 - Permission;
-- Conversation;
-- Message;
-- Notification;
+- RolePermission;
 - AuditLog;
 - RefreshToken.
+- UserSession.
+
+Entidades ainda planejadas para fases futuras:
+
+- Company;
+- Conversation;
+- Message;
+- Notification.
 
 O desenho do banco deverá considerar isolamento por permissão, auditoria, rastreabilidade e futuras integrações.
 
 ## Prisma
 
-Prisma será o ORM planejado para persistência. Prisma ainda não foi instalado nem configurado. O schema deverá ser versionado e evoluído por migrations quando o banco for criado.
+Prisma 7 está configurado no backend como ORM de persistência.
+
+Arquivos atuais:
+
+- `apps/backend/prisma.config.ts`;
+- `apps/backend/prisma/schema.prisma`;
+- `apps/backend/prisma/seed.ts`;
+- `apps/backend/prisma/migrations/20260713203600_init_identity_and_access/migration.sql`.
+
+Como Prisma 7 removeu a URL do datasource no schema, a URL é definida em `prisma.config.ts` a partir de `DATABASE_URL`. O Prisma Client usa `@prisma/adapter-pg` para conexão direta com PostgreSQL.
 
 Regras planejadas:
 
@@ -129,6 +155,7 @@ Regras planejadas:
 - nomes claros de modelos e relações;
 - evitar lógica de negócio dentro da camada de acesso a dados;
 - usar repositories para isolar Prisma do restante da aplicação.
+- usar UUID nativo do PostgreSQL para identificadores iniciais.
 
 ## Socket.IO
 
@@ -155,6 +182,8 @@ Autenticação planejada, ainda não implementada:
 - expiração e revogação de tokens.
 
 Senhas, tokens e segredos nunca devem ser versionados.
+
+O modelo `RefreshToken` já está preparado para armazenar apenas hash do token. Nenhum fluxo de login, JWT ou refresh token foi implementado nesta etapa.
 
 ## Autorização e permissões
 
