@@ -49,3 +49,8 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 43. Refresh tokens serão identificados por `tokenId` no payload e comparados contra hash armazenado no banco.
 44. A autorização inicial usará permissões explícitas com `@RequirePermissions(...)` e `PermissionsGuard`.
 45. Guards de autenticação e permissão não serão globais nesta etapa; controllers devem optar explicitamente por `@UseGuards`.
+46. O frontend usará um BFF com Route Handlers do Next.js para autenticar contra o backend NestJS sem expor tokens ao JavaScript do navegador.
+47. Access token e refresh token do frontend serão armazenados em cookies `HttpOnly`, com `SameSite=Lax` e `Secure` em produção.
+48. O refresh token não será armazenado em `localStorage`; renovações simultâneas serão coordenadas no BFF e no cliente.
+49. A proteção inicial de rotas autenticadas usará middleware do Next.js para bloquear acesso sem cookie de sessão e validação real via BFF.
+50. PostgreSQL local via Docker Compose usara `127.0.0.1:5433:5432` em desenvolvimento para evitar conflito com servicos locais na porta 5432, mantendo o banco restrito ao localhost.

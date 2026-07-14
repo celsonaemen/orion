@@ -12,6 +12,7 @@ Estado atual:
 
 - monorepo pnpm criado;
 - frontend inicial criado em `apps/frontend`;
+- login frontend, BFF de autenticação e dashboard autenticado inicial criados;
 - backend inicial criado em `apps/backend`;
 - pacote compartilhado criado em `packages/shared`;
 - PostgreSQL local preparado via `docker-compose.yml`;
@@ -104,6 +105,28 @@ POST /auth/refresh
 POST /auth/logout
 GET /auth/me
 ```
+
+### Autenticação no frontend
+
+O frontend usa um BFF em Route Handlers do Next.js:
+
+```text
+POST /api/auth/login
+POST /api/auth/refresh
+POST /api/auth/logout
+GET /api/auth/me
+```
+
+O navegador não acessa os tokens diretamente. O BFF chama o backend NestJS, armazena access token e refresh token em cookies `HttpOnly`, usa `Secure` em produção e `SameSite=Lax`, e retorna ao cliente apenas os dados do usuário autenticado.
+
+Rotas atuais:
+
+```text
+/login
+/dashboard
+```
+
+O dashboard é protegido por middleware e validação da sessão via BFF.
 
 ### Shared
 

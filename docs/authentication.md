@@ -1,6 +1,6 @@
 # Autenticacao e Autorizacao
 
-Este documento descreve a fundacao atual de autenticacao do backend Orion. A tela de login no frontend ainda nao foi implementada.
+Este documento descreve a fundacao atual de autenticacao do Orion no backend e no frontend.
 
 ## Estado Atual
 
@@ -18,14 +18,24 @@ Implementado no backend:
 - Validacao de DTOs com `class-validator`.
 - Auditoria basica de login e logout.
 
+Implementado no frontend:
+
+- Pagina `/login`.
+- Dashboard autenticado inicial em `/dashboard`.
+- BFF com Route Handlers do Next.js em `/api/auth/*`.
+- Cookies `HttpOnly` para access token e refresh token.
+- Renovacao de access token via refresh token.
+- Logout com revogacao no backend e limpeza local.
+- Middleware para bloquear dashboard sem cookie de sessao.
+- Validacao de `Origin`/`Sec-Fetch-Site` nos POSTs do BFF.
+- Validacao de `Content-Type: application/json` no login do BFF.
+
 Ainda nao implementado:
 
-- Tela de login no frontend.
 - CRUD de usuarios.
 - Recuperacao de senha.
 - Troca de senha.
 - Politica de bloqueio por tentativas.
-- Cookies HTTP-only.
 - RBAC em modulos de negocio.
 
 ## Variaveis
@@ -40,6 +50,12 @@ JWT_REFRESH_TOKEN_TTL_SECONDS=604800
 ```
 
 `JWT_SECRET` e `JWT_REFRESH_SECRET` nao podem usar valores reais no repositorio.
+
+O frontend usa `NEXT_PUBLIC_API_URL` para o BFF localizar o backend local:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
 
 ## Fluxo de Login
 
@@ -76,6 +92,14 @@ Resposta:
 
 A senha acima e ficticia e exclusiva para desenvolvimento local.
 
+No frontend, o navegador chama:
+
+```http
+POST /api/auth/login
+```
+
+O BFF chama `POST /auth/login` no backend, grava os tokens em cookies `HttpOnly` e retorna ao navegador apenas o usuario autenticado.
+
 ## Refresh Token
 
 ```http
@@ -86,6 +110,14 @@ O refresh token e rotacionado: ao usar um refresh token valido, o token antigo e
 
 Refresh tokens sao armazenados somente como hash.
 
+No frontend, a renovacao usa:
+
+```http
+POST /api/auth/refresh
+```
+
+O BFF le o refresh token do cookie `HttpOnly`, chama `POST /auth/refresh`, grava o novo par de tokens em cookies e retorna apenas o usuario. Renovacoes simultaneas sao coordenadas para evitar chamadas duplicadas desnecessarias.
+
 ## Logout
 
 ```http
@@ -95,6 +127,14 @@ Authorization: Bearer <accessToken>
 
 O logout revoga a sessao atual. Se o body incluir `refreshToken`, o refresh token correspondente tambem e revogado.
 
+No frontend, o navegador chama:
+
+```http
+POST /api/auth/logout
+```
+
+O BFF chama o logout real do backend quando ha token disponivel e limpa os cookies locais.
+
 ## Usuario Atual
 
 ```http
@@ -103,6 +143,21 @@ Authorization: Bearer <accessToken>
 ```
 
 Retorna o usuario autenticado, cargo, setor e permissoes efetivas.
+
+No frontend, o dashboard usa:
+
+```http
+GET /api/auth/me
+```
+
+Esse endpoint valida o access token no backend. Se o access token tiver expirado e houver refresh token valido, o BFF tenta renovar a sessao.
+
+## Protecao de Rotas
+
+- `/dashboard` exige cookie de sessao e consulta `/api/auth/me` antes de exibir dados do usuario.
+- Usuario sem cookie de sessao e redirecionado para `/login`.
+- Usuario com cookie de sessao que acessa `/login` e redirecionado para `/dashboard`, exceto quando a URL indica sessao expirada.
+- A protecao nao depende apenas de esconder componentes no cliente.
 
 ## Guards
 
@@ -128,3 +183,6 @@ A hierarquia Gerente, Coordenador, Setorial e Auxiliar existe como apoio operaci
 - Nao versionar `.env`.
 - Nao usar dados reais em testes.
 - Nao expor stack trace, segredo JWT ou hash de token em respostas.
+- Nao armazenar refresh token em `localStorage`.
+- Cookies de token devem ser `HttpOnly`, `SameSite=Lax` e `Secure` em producao.
+- POSTs do BFF devem rejeitar origem cross-site e mensagens fora do formato esperado.

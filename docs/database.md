@@ -15,12 +15,12 @@ Este documento descreve a fundacao atual de PostgreSQL e Prisma do Orion. Ele na
 Use `.env.example` como referencia e crie `.env` localmente quando necessario. `.env` nao deve ser versionado.
 
 ```env
-DATABASE_URL=postgresql://orion:orion_dev@localhost:5432/orion?schema=public
+DATABASE_URL=postgresql://orion:orion_dev@localhost:5433/orion?schema=public
 ```
 
 A senha `orion_dev` e ficticia e exclusiva para desenvolvimento local.
 
-O PostgreSQL publica a porta `5432` somente em `127.0.0.1`, evitando acesso direto de outros computadores da rede ao banco de desenvolvimento.
+O PostgreSQL publica a porta local `5433` somente em `127.0.0.1`, direcionando para a porta interna `5432` do container e evitando acesso direto de outros computadores da rede ao banco de desenvolvimento.
 
 ## Iniciar PostgreSQL
 
