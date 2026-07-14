@@ -13,6 +13,7 @@ Estado atual:
 - monorepo pnpm criado;
 - frontend inicial criado em `apps/frontend`;
 - login frontend, BFF de autenticação e dashboard autenticado inicial criados;
+- App Shell autenticado inicial criado para navegação principal e módulos futuros;
 - backend inicial criado em `apps/backend`;
 - pacote compartilhado criado em `packages/shared`;
 - PostgreSQL local preparado via `docker-compose.yml`;
@@ -124,9 +125,24 @@ Rotas atuais:
 ```text
 /login
 /dashboard
+/chat
+/companies
+/users
+/sectors
+/notifications
+/admin
+/settings
 ```
 
-O dashboard é protegido por middleware e validação da sessão via BFF.
+As rotas autenticadas usam App Shell compartilhado, middleware e validação real da sessão via BFF. Módulos como chat, empresas, usuários, setores e notificações exibem placeholders "Em breve" nesta fase.
+
+O App Shell inclui:
+
+- sidebar desktop com suporte a recolher/expandir;
+- navegação mobile em drawer;
+- header com usuário, cargo, setor, notificações placeholder, tema e menu de usuário;
+- logout pelo fluxo existente de autenticação;
+- tema claro/escuro com preferência local e suporte à preferência do sistema.
 
 ### Shared
 

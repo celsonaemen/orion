@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Orion Chat",
-  description: "Fundacao tecnica do Orion Chat",
+  title: "Orion",
+  description: "Fundacao tecnica do Orion Core",
 };
 
 type RootLayoutProps = {
@@ -13,7 +13,7 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
