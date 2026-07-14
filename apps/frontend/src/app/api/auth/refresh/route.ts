@@ -23,11 +23,16 @@ export async function POST(request: NextRequest) {
   const result = await refreshWithSingleFlight(refreshToken);
 
   if (!result.ok) {
+    const isInvalidSession = result.code === "invalid_session";
     const response = NextResponse.json(
-      { message: result.status === 401 ? "Sessao expirada." : "Falha ao renovar sessao." },
-      { status: result.status === 401 ? 401 : 503 },
+      { message: isInvalidSession ? "Sessao expirada." : "Falha ao renovar sessao." },
+      { status: isInvalidSession ? 401 : 503 },
     );
-    clearAuthCookies(response);
+
+    if (isInvalidSession) {
+      clearAuthCookies(response);
+    }
+
     return response;
   }
 

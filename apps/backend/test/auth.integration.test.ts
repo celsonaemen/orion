@@ -1,7 +1,7 @@
 import { ExecutionContext, INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { seedDatabase } from "../prisma/seed";
 import { PrismaService } from "../src/database/prisma/prisma.service";
@@ -27,6 +27,9 @@ process.env.JWT_REFRESH_TOKEN_TTL_SECONDS ??= "604800";
 describeWithDatabase("auth integration", () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  const createdRefreshTokenIds = new Set<string>();
+  const createdSessionIdentifiers = new Set<string>();
+  const originalLastLoginByUserId = new Map<string, Date | null>();
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -45,23 +48,68 @@ describeWithDatabase("auth integration", () => {
     prisma = moduleRef.get(PrismaService);
     await app.init();
     await seedDatabase(prisma);
-  });
+    const fixtureUsers = await prisma.user.findMany({
+      select: { id: true, lastLoginAt: true },
+      where: {
+        email: {
+          in: [
+            "admin@orion.local",
+            "gerente@orion.local",
+            "coordenador.fiscal@orion.local",
+            "auxiliar.fiscal@orion.local",
+          ],
+        },
+      },
+    });
 
-  beforeEach(async () => {
-    await prisma.refreshToken.deleteMany();
-    await prisma.userSession.deleteMany();
+    for (const user of fixtureUsers) {
+      originalLastLoginByUserId.set(user.id, user.lastLoginAt);
+    }
   });
 
   afterAll(async () => {
+    await prisma?.auditLog.deleteMany({
+      where: { resourceId: { in: [...createdSessionIdentifiers] } },
+    });
+    await prisma?.refreshToken.deleteMany({
+      where: { id: { in: [...createdRefreshTokenIds] } },
+    });
+    await prisma?.userSession.deleteMany({
+      where: { sessionIdentifier: { in: [...createdSessionIdentifiers] } },
+    });
+
+    for (const [id, lastLoginAt] of originalLastLoginByUserId) {
+      await prisma?.user.update({ data: { lastLoginAt }, where: { id } });
+    }
+
     await app?.close();
   });
 
-  function login(email: string, password = DEV_PASSWORD) {
-    return request(app.getHttpServer()).post("/auth/login").send({ email, password });
+  function trackAuthArtifacts(body: {
+    tokens?: { refreshToken?: string };
+    user?: { sessionId?: string };
+  }) {
+    if (body.user?.sessionId) {
+      createdSessionIdentifiers.add(body.user.sessionId);
+    }
+
+    if (body.tokens?.refreshToken) {
+      createdRefreshTokenIds.add(getRefreshTokenId(body.tokens.refreshToken));
+    }
+  }
+
+  async function login(email: string, password = DEV_PASSWORD, expectedStatus = 201) {
+    const response = await request(app.getHttpServer())
+      .post("/auth/login")
+      .send({ email, password })
+      .expect(expectedStatus);
+
+    trackAuthArtifacts(response.body);
+    return response;
   }
 
   it("logs in a seeded active user and returns tokens without password data", async () => {
-    const response = await login("admin@orion.local").expect(201);
+    const response = await login("admin@orion.local");
 
     expect(response.body.tokens.accessToken).toEqual(expect.any(String));
     expect(response.body.tokens.refreshToken).toEqual(expect.any(String));
@@ -72,11 +120,11 @@ describeWithDatabase("auth integration", () => {
   });
 
   it("rejects invalid credentials", async () => {
-    await login("admin@orion.local", "wrong-password").expect(401);
+    await login("admin@orion.local", "wrong-password", 401);
   });
 
   it("returns the authenticated user from /auth/me", async () => {
-    const loginResponse = await login("gerente@orion.local").expect(201);
+    const loginResponse = await login("gerente@orion.local");
 
     const response = await request(app.getHttpServer())
       .get("/auth/me")
@@ -88,13 +136,14 @@ describeWithDatabase("auth integration", () => {
   });
 
   it("rotates refresh tokens and rejects reuse of the old refresh token", async () => {
-    const loginResponse = await login("coordenador.fiscal@orion.local").expect(201);
+    const loginResponse = await login("coordenador.fiscal@orion.local");
     const firstRefreshToken = loginResponse.body.tokens.refreshToken;
 
     const refreshResponse = await request(app.getHttpServer())
       .post("/auth/refresh")
       .send({ refreshToken: firstRefreshToken })
       .expect(201);
+    trackAuthArtifacts(refreshResponse.body);
 
     expect(refreshResponse.body.tokens.accessToken).toEqual(expect.any(String));
     expect(refreshResponse.body.tokens.refreshToken).toEqual(expect.any(String));
@@ -107,7 +156,7 @@ describeWithDatabase("auth integration", () => {
   });
 
   it("logs out and invalidates the current access token session", async () => {
-    const loginResponse = await login("auxiliar.fiscal@orion.local").expect(201);
+    const loginResponse = await login("auxiliar.fiscal@orion.local");
     const { accessToken, refreshToken } = loginResponse.body.tokens;
 
     await request(app.getHttpServer())
@@ -123,6 +172,24 @@ describeWithDatabase("auth integration", () => {
       .expect(401);
   });
 });
+
+function getRefreshTokenId(refreshToken: string) {
+  const payload = refreshToken.split(".")[1];
+
+  if (!payload) {
+    throw new Error("Refresh token payload is missing.");
+  }
+
+  const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
+    tokenId?: unknown;
+  };
+
+  if (typeof decoded.tokenId !== "string") {
+    throw new Error("Refresh token identifier is missing.");
+  }
+
+  return decoded.tokenId;
+}
 
 describe("permissions guard", () => {
   it("allows and denies access by explicit permission code", () => {

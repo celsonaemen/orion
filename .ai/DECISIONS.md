@@ -57,3 +57,13 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 51. O App Shell autenticado sera o layout compartilhado das rotas internas, mantendo autenticacao via BFF e usando placeholders para modulos ainda nao implementados.
 52. A navegacao principal ficara centralizada em configuracao propria para futura aplicacao de permissoes sem implementar RBAC completo nesta etapa.
 53. O tema do frontend usara variaveis CSS e preferencia local do navegador, sem biblioteca externa de tema.
+54. A administracao inicial de usuarios e setores usara os modelos Prisma existentes, sem migration nova nesta etapa.
+55. O backend sera a autoridade final de RBAC para usuarios e setores, usando `JwtAuthGuard`, `PermissionsGuard` e codigos de permissao ja existentes no seed.
+56. O frontend administrativo usara BFF Next.js para `/api/users` e `/api/sectors`, mantendo access token e refresh token somente em cookies `HttpOnly`.
+57. Setores nao terao hard delete nesta etapa; `isActive` sera usado para desativacao operacional.
+58. O slug de setor sera definido na criacao e nao sera alterado pela edicao administrativa inicial.
+59. Como o enum atual de auditoria ainda nao tem `SECTOR_CREATED` e `SECTOR_UPDATED`, eventos administrativos de setor serao registrados com `SECTOR_ASSIGNED` e diferenciados por `metadata.event` ate futura revisao de schema.
+60. A permissao `users.read` continuara obrigatoria, mas perfis com nivel hierarquico maior que 1 terao leitura de usuarios limitada ao proprio setor; nivel gerencial 1 tera visao global.
+61. Suites de integracao que usam o PostgreSQL local devem rastrear e remover somente os registros que criarem; limpeza global de sessoes, tokens ou dados existentes e proibida.
+62. O BFF podera reutilizar por uma janela curta o resultado bem-sucedido de refresh para atender requisicoes atrasadas com o cookie anterior. Somente `invalid_session` limpará cookies; falhas transitorias retornarao indisponibilidade sem destruir a sessao local.
+63. Opcoes administrativas podem listar cargos e setores inativos para preservar vinculos existentes em edicao, mas novos vinculos continuam aceitando somente registros ativos.

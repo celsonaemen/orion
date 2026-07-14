@@ -26,7 +26,7 @@ Há configuração inicial de PostgreSQL local, Prisma e migration de identidade
 Há autenticação backend inicial com JWT, refresh token, sessões e guards de permissão.
 O frontend possui fluxo inicial de login, BFF de autenticação no Next.js, cookies `HttpOnly`, renovação de token, logout e dashboard autenticado inicial.
 
-Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, CRUD administrativo de usuários ou aplicação de permissões em módulos de negócio.
+Há administração inicial de usuários e setores com RBAC no backend e BFF no frontend. Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, CRUD de cargos/permissões, CRUD de empresas ou notificações reais.
 
 ## Frontend
 
@@ -50,29 +50,30 @@ Responsabilidades do frontend:
 - não acessar diretamente o banco de dados;
 - não conter regra de negócio crítica.
 
-Telas futuras previstas:
+Telas implementadas:
 
 - login;
 - dashboard;
 - usuários;
-- setores;
+- setores.
+
+Telas futuras previstas:
+
 - empresas;
 - chat;
 - notificações;
 - configurações.
 
-Tela atual:
+Estado atual do frontend:
 
-- página inicial simples do Orion Chat;
-- mensagem "Comunicação interna da contabilidade";
-- status visual de frontend funcionando.
 - rota `/login` com formulário de acesso;
 - rota `/dashboard` autenticada exibindo usuário, cargo, setor e e-mail;
 - Route Handlers `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me` como BFF para o backend.
 - App Shell autenticado compartilhado para rotas internas;
 - sidebar com navegacao principal e placeholders para modulos futuros;
 - header com usuario autenticado, tema, notificacoes placeholder e menu de usuario;
-- rotas placeholder autenticadas para `/chat`, `/companies`, `/users`, `/sectors`, `/notifications`, `/admin` e `/settings`.
+- rotas placeholder autenticadas para `/chat`, `/companies`, `/notifications`, `/admin` e `/settings`.
+- telas administrativas reais para `/users` e `/sectors`, com BFF em `/api/users` e `/api/sectors`.
 
 ## Backend
 
@@ -84,24 +85,28 @@ Backend criado:
 - arquitetura modular;
 - dependency injection;
 - service layer;
-- repository pattern;
+- acesso a dados centralizado pelo `PrismaService`;
 - DTOs;
 - validação de entrada.
 
-Módulo atual:
+Módulos atuais:
 
-- health.
+- health;
 - database;
-- prisma.
+- prisma;
+- auth;
+- users;
+- sectors.
 
-Endpoint atual:
+Endpoints atuais:
 
 - `GET /health`, retornando status operacional do backend e conectividade do banco quando PostgreSQL estiver disponível.
+- `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`;
+- `GET /users`, `GET /users/options`, `GET /users/:id`, `POST /users`, `PATCH /users/:id` e `PATCH /users/:id/status`;
+- `GET /sectors`, `GET /sectors/:id`, `POST /sectors` e `PATCH /sectors/:id`.
 
 Módulos futuros previstos:
 
-- users;
-- sectors;
 - companies;
 - roles;
 - permissions;
@@ -110,6 +115,8 @@ Módulos futuros previstos:
 - audit-log;
 
 Controllers devem receber requisições, validar o contrato de entrada e retornar respostas. Regras de negócio devem ficar em services ou use cases. Persistência deve passar por repositories.
+
+O isolamento completo por repositories continua planejado. Os modulos atuais de autenticacao, usuarios e setores ainda acessam `PrismaService` a partir dos services e nao devem ser descritos como repository pattern concluido.
 
 ## Banco de dados
 
@@ -208,6 +215,8 @@ Autenticação frontend inicial implementada:
 - refresh token não usa `localStorage`;
 - middleware bloqueia rotas autenticadas sem cookie de sessão;
 - cliente redireciona para `/login` quando a sessão expira.
+- falha transitoria de backend nao remove o refresh token local;
+- resultados de refresh bem-sucedidos podem ser reutilizados por uma janela curta no mesmo processo para atender requisicoes atrasadas.
 
 Ainda não há recuperação de senha, troca de senha ou bloqueio por tentativas.
 
@@ -235,17 +244,24 @@ Implementação inicial:
 - `PermissionsGuard` valida permissões explícitas;
 - `@RequirePermissions(...)` define permissões exigidas;
 - `@CurrentUser()` expõe o usuário autenticado para controllers.
+- endpoints administrativos de usuários e setores exigem permissões explícitas no backend.
+- usuarios com nivel hierarquico maior que 1 e permissao `users.read` ficam limitados ao proprio setor; nivel 1 possui visao global.
 
 A hierarquia é apoio operacional. A autorização real deve depender de permissões explícitas.
 
 ## Auditoria
 
-Auditoria será parte central da arquitetura.
+Auditoria é parte central da arquitetura.
 
-Eventos futuros a auditar:
+Eventos atualmente auditados:
 
 - login e logout;
 - criação e alteração de usuários;
+- ativação e desativação de usuários;
+- criação e alteração de setores.
+
+Eventos futuros a auditar:
+
 - alterações de permissões;
 - acessos gerenciais;
 - leitura de informações sensíveis;

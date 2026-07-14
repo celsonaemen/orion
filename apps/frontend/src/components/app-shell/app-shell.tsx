@@ -44,51 +44,71 @@ export function AppShell({ children }: AppShellProps) {
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   useEffect(() => {
     let isActive = true;
 
     async function loadSession() {
-      const current = await getCurrentSession();
-
-      if (!isActive) {
-        return;
-      }
-
-      if (current.ok) {
-        setSession({
-          message: "",
-          status: "authenticated",
-          user: current.session.user,
-        });
-        return;
-      }
-
-      if (current.status === 401) {
-        const refreshed = await refreshSession();
+      try {
+        const current = await getCurrentSession();
 
         if (!isActive) {
           return;
         }
 
-        if (refreshed.ok) {
+        if (current.ok) {
           setSession({
             message: "",
             status: "authenticated",
-            user: refreshed.session.user,
+            user: current.session.user,
           });
           return;
         }
 
-        router.replace("/login?expired=1");
-        return;
-      }
+        if (current.status === 401) {
+          const refreshed = await refreshSession();
 
-      setSession({
-        message: "Nao foi possivel carregar sua sessao.",
-        status: "error",
-        user: null,
-      });
+          if (!isActive) {
+            return;
+          }
+
+          if (refreshed.ok) {
+            setSession({
+              message: "",
+              status: "authenticated",
+              user: refreshed.session.user,
+            });
+            return;
+          }
+
+          if (refreshed.status === 401) {
+            router.replace("/login?expired=1");
+            return;
+          }
+
+          setSession({
+            message: "Nao foi possivel renovar sua sessao agora.",
+            status: "error",
+            user: null,
+          });
+          return;
+        }
+
+        setSession({
+          message: "Nao foi possivel carregar sua sessao.",
+          status: "error",
+          user: null,
+        });
+      } catch {
+        if (isActive) {
+          setSession({
+            message: "Nao foi possivel carregar sua sessao.",
+            status: "error",
+            user: null,
+          });
+        }
+      }
     }
 
     void loadSession();
@@ -100,13 +120,18 @@ export function AppShell({ children }: AppShellProps) {
 
   async function handleLogout() {
     setIsLoggingOut(true);
+    setLogoutError(null);
 
-    try {
-      await logout();
-    } finally {
+    const result = await logout();
+
+    if (result.ok) {
       router.replace("/login");
       router.refresh();
+      return;
     }
+
+    setLogoutError("Nao foi possivel encerrar sua sessao agora.");
+    setIsLoggingOut(false);
   }
 
   if (session.status === "loading") {
@@ -122,7 +147,7 @@ export function AppShell({ children }: AppShellProps) {
   if (session.status === "error") {
     return (
       <main className="flex min-h-screen items-center bg-[var(--orion-app-bg)] px-6 text-[var(--orion-text)]">
-        <section className="mx-auto w-full max-w-lg border border-rose-300/40 bg-rose-500/10 p-6 text-sm text-rose-100">
+        <section className="mx-auto w-full max-w-lg border border-rose-300/40 bg-rose-500/10 p-6 text-sm text-[var(--orion-danger)]">
           {session.message}
         </section>
       </main>
@@ -168,7 +193,17 @@ export function AppShell({ children }: AppShellProps) {
               </button>
             }
           />
-          <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+          <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            {logoutError ? (
+              <p
+                className="mb-4 border border-rose-300/50 bg-rose-500/10 p-3 text-sm text-[var(--orion-danger)]"
+                role="alert"
+              >
+                {logoutError}
+              </p>
+            ) : null}
+            {children}
+          </main>
         </div>
       </div>
     </AuthenticatedUserProvider>

@@ -2,11 +2,11 @@
 
 ## Estado geral
 
-Somente a Fase 0 está iniciada. As demais fases são planejamento e não devem ser tratadas como implementadas.
+A Fase 0 possui fundacao tecnica validada e a Fase 1 esta em andamento. Fases posteriores continuam apenas planejadas.
 
 ## Fase 0 - Fundação
 
-Status: iniciada, com documentação versionada, monorepo base e fundação inicial de persistência criados para revisão.
+Status: concluida tecnicamente, com documentacao, monorepo, persistencia e autenticacao inicial validados.
 
 Objetivos:
 
@@ -38,7 +38,7 @@ Critério de saída:
 
 ## Fase 1 - Orion Core
 
-Status: iniciada tecnicamente pela fundação de persistência, autenticação backend inicial e login frontend inicial. Funcionalidades administrativas ainda não implementadas.
+Status: iniciada tecnicamente pela fundação de persistência, autenticação backend inicial, login frontend inicial e administração inicial de usuários/setores.
 
 Escopo:
 
@@ -63,15 +63,21 @@ Itens técnicos já iniciados:
 - dashboard autenticado inicial.
 - App Shell autenticado inicial;
 - navegacao principal para modulos futuros;
-- placeholders autenticados para chat, empresas, usuarios, setores, notificacoes, administracao e configuracoes;
+- placeholders autenticados para chat, empresas, notificacoes, administracao e configuracoes;
 - tema claro/escuro preparado.
+- CRUD inicial de usuarios;
+- CRUD inicial de setores;
+- aplicacao de permissoes explicitas nos endpoints administrativos de usuarios e setores.
+- escopo setorial para leitura administrativa nao gerencial;
+- auditoria basica de criacao, edicao e status;
+- testes integrados sem limpeza global do banco local.
 
 Próxima etapa técnica planejada:
 
-- CRUD administrativo de usuários, setores, cargos e permissões;
-- aplicação de guards nos módulos de negócio;
-- services e repositories para usuários, setores, cargos e permissões;
-- auditoria de ações administrativas.
+- CRUD administrativo de cargos e permissoes;
+- aplicacao de guards nos proximos modulos de negocio;
+- services e repositories para empresas, cargos e permissoes;
+- ampliacao da consulta e da interface de auditoria administrativa.
 
 ## Fase 2 - Comunicação
 

@@ -4,18 +4,21 @@
 
 :root {
   --orion-accent: #0f766e;
+  --orion-accent-contrast: #ffffff;
   --orion-active: #ccfbf1;
   --orion-app-bg: #f5f7fb;
   --orion-avatar: #0f766e;
   --orion-border: #d7dde8;
   --orion-border-strong: #9aa6b8;
   --orion-focus: #14b8a6;
+  --orion-danger: #9f1239;
   --orion-header: #ffffff;
   --orion-hover: #eef2f7;
   --orion-muted: #5b677a;
   --orion-panel: #ffffff;
   --orion-panel-muted: #f8fafc;
   --orion-sidebar: #ffffff;
+  --orion-success: #166534;
   --orion-text: #111827;
   color: var(--orion-text);
   background: var(--orion-app-bg);
@@ -23,36 +26,42 @@
 
 :root[data-theme="dark"] {
   --orion-accent: #5eead4;
+  --orion-accent-contrast: #0f172a;
   --orion-active: #134e4a;
   --orion-app-bg: #0f172a;
   --orion-avatar: #0f766e;
   --orion-border: #24324a;
   --orion-border-strong: #475569;
   --orion-focus: #5eead4;
+  --orion-danger: #fecdd3;
   --orion-header: #111827;
   --orion-hover: #172033;
   --orion-muted: #9aa8bd;
   --orion-panel: #111827;
   --orion-panel-muted: #0b1220;
   --orion-sidebar: #0b1220;
+  --orion-success: #a7f3d0;
   --orion-text: #f8fafc;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --orion-accent: #5eead4;
+    --orion-accent-contrast: #0f172a;
     --orion-active: #134e4a;
     --orion-app-bg: #0f172a;
     --orion-avatar: #0f766e;
     --orion-border: #24324a;
     --orion-border-strong: #475569;
     --orion-focus: #5eead4;
+    --orion-danger: #fecdd3;
     --orion-header: #111827;
     --orion-hover: #172033;
     --orion-muted: #9aa8bd;
     --orion-panel: #111827;
     --orion-panel-muted: #0b1220;
     --orion-sidebar: #0b1220;
+    --orion-success: #a7f3d0;
     --orion-text: #f8fafc;
   }
 }

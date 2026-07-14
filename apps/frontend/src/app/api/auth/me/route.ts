@@ -32,11 +32,16 @@ export async function GET() {
   const refreshed = await refreshWithSingleFlight(refreshToken);
 
   if (!refreshed.ok) {
+    const isInvalidSession = refreshed.code === "invalid_session";
     const response = NextResponse.json(
-      { message: refreshed.status === 401 ? "Sessao expirada." : "Falha ao renovar sessao." },
-      { status: refreshed.status === 401 ? 401 : 503 },
+      { message: isInvalidSession ? "Sessao expirada." : "Falha ao renovar sessao." },
+      { status: isInvalidSession ? 401 : 503 },
     );
-    clearAuthCookies(response);
+
+    if (isInvalidSession) {
+      clearAuthCookies(response);
+    }
+
     return response;
   }
 

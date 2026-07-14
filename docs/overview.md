@@ -6,13 +6,13 @@ O Orion não substitui sistemas oficiais ou sistemas contábeis existentes. Alte
 
 ## Situação atual
 
-O projeto está na Fase 0 - Fundação.
+O projeto esta na Fase 1 - Orion Core, com a fundacao tecnica da Fase 0 validada.
 
-Nesta fase foram criadas a memória permanente, a documentação inicial, as decisões arquiteturais e as regras de segurança. Não há aplicação implementada.
+Ja existem monorepo, frontend Next.js, backend NestJS, PostgreSQL/Prisma, autenticacao, App Shell e administracao inicial de usuarios e setores. Empresas, cargos/permissoes administrativos, chat e notificacoes reais ainda nao foram implementados.
 
 ## Objetivo inicial
 
-O primeiro produto funcional futuro será o Orion Core, com:
+O Orion Core em andamento cobre:
 
 - autenticação;
 - usuários;
@@ -21,6 +21,8 @@ O primeiro produto funcional futuro será o Orion Core, com:
 - permissões;
 - dashboard;
 - auditoria.
+
+Autenticacao, usuarios, setores, dashboard inicial e auditoria basica ja foram iniciados. Empresas e CRUD de cargos/permissoes permanecem como proximas etapas.
 
 ## Evolução planejada
 

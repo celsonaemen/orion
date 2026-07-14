@@ -83,7 +83,13 @@ export function refreshSession() {
 }
 
 export async function logout() {
-  await fetch("/api/auth/logout", {
-    method: "POST",
-  });
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    return { ok: response.ok };
+  } catch {
+    return { ok: false };
+  }
 }

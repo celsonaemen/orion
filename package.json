@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@11.12.0",
   "scripts": {
-    "dev": "corepack pnpm --parallel --filter './apps/*' dev",
+    "dev": "corepack pnpm --parallel --filter @orion/backend --filter @orion/frontend dev",
     "build": "corepack pnpm --recursive build",
     "lint": "corepack pnpm --recursive lint",
     "typecheck": "corepack pnpm --recursive typecheck",

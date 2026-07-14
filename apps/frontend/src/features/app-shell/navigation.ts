@@ -66,14 +66,12 @@ export const navigationItems: NavigationItem[] = [
     icon: Users,
     label: "Usuarios",
     permission: "users.read",
-    soon: true,
   },
   {
     href: "/sectors",
     icon: Workflow,
     label: "Setores",
     permission: "sectors.read",
-    soon: true,
   },
   {
     href: "/notifications",
@@ -104,12 +102,19 @@ export function isNavigationItemActive(item: NavigationItem, pathname: string) {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-export function flattenNavigationItems(items: NavigationItem[] = navigationItems): NavigationItem[] {
-  return items.flatMap((item) => [item, ...(item.children ? flattenNavigationItems(item.children) : [])]);
+export function flattenNavigationItems(
+  items: NavigationItem[] = navigationItems,
+): NavigationItem[] {
+  return items.flatMap((item) => [
+    item,
+    ...(item.children ? flattenNavigationItems(item.children) : []),
+  ]);
 }
 
 export function findNavigationItem(pathname: string) {
-  const candidates = flattenNavigationItems().filter((item) => isNavigationItemActive(item, pathname));
+  const candidates = flattenNavigationItems().filter((item) =>
+    isNavigationItemActive(item, pathname),
+  );
 
   return [...candidates].sort((first, second) => second.href.length - first.href.length)[0];
 }

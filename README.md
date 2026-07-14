@@ -6,7 +6,7 @@ O objetivo é criar uma central própria para comunicação interna, usuários, 
 
 ## Situação atual
 
-O projeto está em construção, com a fundação validada e a autenticação backend inicial em revisão.
+O projeto esta em construcao, com fundacao validada, autenticacao inicial e administracao de usuarios/setores implementada e validada nesta branch.
 
 Estado atual:
 
@@ -14,6 +14,7 @@ Estado atual:
 - frontend inicial criado em `apps/frontend`;
 - login frontend, BFF de autenticação e dashboard autenticado inicial criados;
 - App Shell autenticado inicial criado para navegação principal e módulos futuros;
+- administração inicial de usuários e setores implementada em `/users` e `/sectors`;
 - backend inicial criado em `apps/backend`;
 - pacote compartilhado criado em `packages/shared`;
 - PostgreSQL local preparado via `docker-compose.yml`;
@@ -134,7 +135,7 @@ Rotas atuais:
 /settings
 ```
 
-As rotas autenticadas usam App Shell compartilhado, middleware e validação real da sessão via BFF. Módulos como chat, empresas, usuários, setores e notificações exibem placeholders "Em breve" nesta fase.
+As rotas autenticadas usam App Shell compartilhado, middleware e validação real da sessão via BFF. `/users` e `/sectors` possuem administração inicial real; módulos como chat, empresas e notificações seguem como placeholders "Em breve" nesta fase.
 
 O App Shell inclui:
 
@@ -158,6 +159,7 @@ Na raiz do repositório:
 pnpm install
 pnpm lint
 pnpm typecheck
+pnpm test
 pnpm build
 pnpm dev
 ```
@@ -239,6 +241,7 @@ Documentação geral:
 - `docs/roles-and-permissions.md`;
 - `docs/database.md`;
 - `docs/authentication.md`;
+- `docs/admin-users-sectors.md`;
 - `docs/glossary.md`.
 
 ## Avisos importantes
