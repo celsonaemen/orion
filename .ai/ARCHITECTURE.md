@@ -23,7 +23,9 @@ scripts/
 
 Há configuração inicial de PostgreSQL local, Prisma e migration de identidade/acesso. A aplicação das migrations depende de um PostgreSQL disponível.
 
-Ainda não há autenticação funcional, chat funcional, Socket.IO, integrações externas, IA ou RAG.
+Há autenticação backend inicial com JWT, refresh token, sessões e guards de permissão.
+
+Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, tela de login no frontend, CRUD administrativo de usuários ou aplicação de permissões em módulos de negócio.
 
 ## Frontend
 
@@ -90,7 +92,6 @@ Endpoint atual:
 
 Módulos futuros previstos:
 
-- auth;
 - users;
 - sectors;
 - companies;
@@ -173,17 +174,23 @@ Eventos em tempo real deverão respeitar autenticação, autorização e auditor
 
 ## Autenticação
 
-Autenticação planejada, ainda não implementada:
+Autenticação backend inicial implementada:
 
 - JWT;
 - refresh token;
 - bcrypt para senhas;
 - proteção de sessão;
 - expiração e revogação de tokens.
+- endpoint `POST /auth/login`;
+- endpoint `POST /auth/refresh`;
+- endpoint `POST /auth/logout`;
+- endpoint `GET /auth/me`.
 
 Senhas, tokens e segredos nunca devem ser versionados.
 
-O modelo `RefreshToken` já está preparado para armazenar apenas hash do token. Nenhum fluxo de login, JWT ou refresh token foi implementado nesta etapa.
+O modelo `RefreshToken` armazena apenas hash do token. O refresh token é rotacionado no uso.
+
+Ainda não há tela de login, recuperação de senha, troca de senha ou bloqueio por tentativas.
 
 ## Autorização e permissões
 
@@ -202,6 +209,15 @@ Regras conceituais:
 - Auxiliar terá acesso apenas às conversas, grupos e tarefas autorizadas.
 
 Acesso gerencial deve ser controlado, transparente e auditável.
+
+Implementação inicial:
+
+- `JwtAuthGuard` valida access token e sessão ativa;
+- `PermissionsGuard` valida permissões explícitas;
+- `@RequirePermissions(...)` define permissões exigidas;
+- `@CurrentUser()` expõe o usuário autenticado para controllers.
+
+A hierarquia é apoio operacional. A autorização real deve depender de permissões explícitas.
 
 ## Auditoria
 

@@ -27,20 +27,23 @@
 - Dados fictícios confirmados após validação: 7 setores, 4 cargos, 16 permissões, 22 vínculos cargo/permissão, 5 usuários base do seed e 11 usuários fictícios totais após testes de integração.
 - `GET /health` validado com resposta `database: "connected"`.
 - `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso em 2026-07-14.
-- Nenhuma autenticação implementada.
+- Autenticação backend inicial implementada com `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`.
+- `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions(...)` e `@CurrentUser()` implementados.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
+- Nenhuma tela de login implementada.
+- Nenhum CRUD administrativo de usuários, setores, cargos ou permissões implementado.
 - Frontend e backend ainda não foram colocados em Docker.
 - Nenhum Socket.IO configurado.
 - Nenhuma IA ou RAG implementados.
 
 ## Fase atual
 
-Fase 0 - Fundação, com início técnico da persistência do Orion Core.
+Fase 1 - Orion Core iniciado tecnicamente no backend.
 
 ## Próximo passo
 
-Avançar para autenticação, guards e autorização por permissões após revisão da fundação PostgreSQL/Prisma.
+Auditar e validar a autenticação backend inicial antes de avançar para tela de login, CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat.
 
 ## Observações
 
@@ -48,3 +51,4 @@ Avançar para autenticação, guards e autorização por permissões após revis
 - A documentação em `.ai/` é a fonte oficial de contexto para agentes e desenvolvedores.
 - Antes de qualquer implementação, decisões relevantes devem ser conferidas em `.ai/DECISIONS.md`.
 - `.env` não foi criado nem versionado; `DATABASE_URL` foi usada somente como variável local de processo durante a validação.
+- Para rodar testes de integração de banco e auth, defina `DATABASE_URL`, `JWT_SECRET` e `JWT_REFRESH_SECRET` apenas no ambiente local.

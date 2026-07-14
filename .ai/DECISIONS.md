@@ -44,3 +44,8 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 38. Refresh tokens serão armazenados somente como hash.
 39. Logs de auditoria podem existir sem ator autenticado para permitir registro de eventos anônimos ou falhas antes do login.
 40. O endpoint `GET /health` deve verificar o banco sem expor URL, usuário, senha, stack trace ou detalhes internos sensíveis.
+41. A autenticação backend inicial usará JWT de acesso e refresh token com rotação.
+42. Access tokens serão validados junto da sessão ativa no banco por meio de `UserSession`.
+43. Refresh tokens serão identificados por `tokenId` no payload e comparados contra hash armazenado no banco.
+44. A autorização inicial usará permissões explícitas com `@RequirePermissions(...)` e `PermissionsGuard`.
+45. Guards de autenticação e permissão não serão globais nesta etapa; controllers devem optar explicitamente por `@UseGuards`.

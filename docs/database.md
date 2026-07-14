@@ -154,10 +154,6 @@ Resultado confirmado:
 
 ## Ainda Nao Implementado
 
-- Login.
-- JWT.
-- Refresh token funcional.
-- Guards.
 - CRUD de usuarios, setores, cargos ou permissoes.
 - Empresas.
 - Conversas.

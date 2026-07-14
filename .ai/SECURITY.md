@@ -29,6 +29,7 @@
 - Sessões devem ter expiração.
 - Refresh tokens devem poder ser revogados.
 - Refresh tokens devem ser armazenados somente como hash.
+- Refresh tokens devem ser rotacionados quando usados.
 - Senhas devem ser protegidas com hashing adequado.
 - Seeds podem usar apenas credenciais fictícias de desenvolvimento local.
 - Comunicação deve usar criptografia em trânsito em ambientes publicados.
@@ -39,6 +40,7 @@
 - Logs de auditoria devem registrar ator, ação, alvo e horário.
 - Logs não devem conter segredos.
 - Logs não devem conter senhas, tokens, hashes de tokens ou conteúdo completo de mensagens.
+- Responses de autenticação não devem retornar `passwordHash`, hash de token ou segredos de ambiente.
 - Logs devem ser úteis para revisão de acessos e alterações.
 
 ## Ambientes

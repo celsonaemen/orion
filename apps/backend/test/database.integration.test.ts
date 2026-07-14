@@ -2,65 +2,40 @@ import { randomUUID } from "node:crypto";
 
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
-import type { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { seedDatabase } from "../prisma/seed";
 import { AppModule } from "../src/app.module";
-import { createPrismaClient } from "../src/database/prisma/prisma-client.factory";
+import { PrismaService } from "../src/database/prisma/prisma.service";
 
 const databaseUrl = process.env.DATABASE_URL;
 const describeWithDatabase = databaseUrl ? describe : describe.skip;
 
-async function canConnect() {
-  if (!databaseUrl) {
-    return false;
-  }
-
-  const prisma = createPrismaClient();
-
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return true;
-  } catch {
-    return false;
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
 describeWithDatabase("database integration", () => {
-  let prisma: PrismaClient;
+  let prisma: PrismaService;
   let app: INestApplication;
-  let databaseAvailable = false;
 
   beforeAll(async () => {
-    databaseAvailable = await canConnect();
-    prisma = createPrismaClient();
-
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
+    prisma = moduleRef.get(PrismaService);
     await app.init();
   });
 
   afterAll(async () => {
     await app?.close();
-    await prisma?.$disconnect();
   });
 
   it("connects to PostgreSQL through Prisma", async () => {
-    expect(databaseAvailable).toBe(true);
     await expect(prisma.$queryRaw`SELECT 1`).resolves.toBeDefined();
   });
 
   it("reports backend health with database connection", async () => {
-    expect(databaseAvailable).toBe(true);
-
     await request(app.getHttpServer()).get("/health").expect(200).expect({
       database: "connected",
       service: "orion-backend",
@@ -69,7 +44,6 @@ describeWithDatabase("database integration", () => {
   });
 
   it("runs the seed idempotently", async () => {
-    expect(databaseAvailable).toBe(true);
     await seedDatabase(prisma);
     await seedDatabase(prisma);
 
@@ -80,7 +54,6 @@ describeWithDatabase("database integration", () => {
   });
 
   it("enforces unique user email", async () => {
-    expect(databaseAvailable).toBe(true);
     const suffix = randomUUID();
     const passwordHash = await bcrypt.hash("OrionTest123!", 10);
     const role = await prisma.role.findUniqueOrThrow({ where: { slug: "auxiliar" } });
@@ -107,7 +80,6 @@ describeWithDatabase("database integration", () => {
   });
 
   it("enforces unique permission code", async () => {
-    expect(databaseAvailable).toBe(true);
     const code = `test.permission.${randomUUID()}`;
 
     await prisma.permission.create({
@@ -128,7 +100,6 @@ describeWithDatabase("database integration", () => {
   });
 
   it("creates a user with role and sector", async () => {
-    expect(databaseAvailable).toBe(true);
     const suffix = randomUUID();
     const role = await prisma.role.findUniqueOrThrow({ where: { slug: "auxiliar" } });
     const sector = await prisma.sector.findUniqueOrThrow({ where: { slug: "fiscal" } });
@@ -153,7 +124,6 @@ describeWithDatabase("database integration", () => {
   });
 
   it("relates roles and permissions without allowing duplicates", async () => {
-    expect(databaseAvailable).toBe(true);
     const role = await prisma.role.findUniqueOrThrow({ where: { slug: "auxiliar" } });
     const permission = await prisma.permission.findUniqueOrThrow({
       where: { code: "conversations.read-own" },
