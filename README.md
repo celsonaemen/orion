@@ -6,7 +6,7 @@ O objetivo é criar uma central própria para comunicação interna, usuários, 
 
 ## Situação atual
 
-O projeto está em construção, na Fase 0 - Fundação.
+O projeto está em construção, com a fundação validada e a autenticação backend inicial em revisão.
 
 Estado atual:
 
@@ -20,7 +20,8 @@ Estado atual:
 - migration inicial criada para usuários, setores, cargos, permissões, sessões e auditoria;
 - seed fictício criado para desenvolvimento local;
 - endpoint `GET /health` criado no backend com verificação de banco;
-- autenticação ainda não implementada;
+- autenticação backend inicial implementada com login, refresh, logout e usuário atual;
+- guards iniciais de JWT e permissões explícitas implementados;
 - chat ainda não implementado;
 - banco local validado com Docker/PostgreSQL em `orion-postgres`;
 - frontend e backend ainda não rodam em Docker;
@@ -95,6 +96,15 @@ Resposta esperada:
 
 Se o banco estiver indisponível, o endpoint deve responder erro de serviço sem expor URL, usuário, senha ou stack trace.
 
+Endpoints de autenticação atuais:
+
+```text
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+GET /auth/me
+```
+
 ### Shared
 
 Local: `packages/shared`
@@ -146,6 +156,8 @@ Validação local confirmada em 2026-07-14:
 - `GET /health` retornando `database: "connected"`;
 - `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
 
+Para testar autenticação localmente, configure `JWT_SECRET` e `JWT_REFRESH_SECRET` fora do Git.
+
 ## Stack planejada
 
 Frontend:
@@ -187,6 +199,7 @@ Documentação geral:
 - `docs/overview.md`;
 - `docs/roles-and-permissions.md`;
 - `docs/database.md`;
+- `docs/authentication.md`;
 - `docs/glossary.md`.
 
 ## Avisos importantes
