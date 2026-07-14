@@ -2,12 +2,13 @@
   "name": "@orion/frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
     "lint": "eslint src next.config.mjs tailwind.config.ts postcss.config.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No frontend tests configured yet\""
+    "test": "node --test --experimental-strip-types src/features/auth/*.test.ts"
   },
   "dependencies": {
     "@orion/shared": "workspace:*",

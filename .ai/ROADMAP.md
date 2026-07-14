@@ -38,7 +38,7 @@ Critério de saída:
 
 ## Fase 1 - Orion Core
 
-Status: iniciada tecnicamente pela fundação de persistência e autenticação backend inicial. Funcionalidades administrativas e frontend de login ainda não implementadas.
+Status: iniciada tecnicamente pela fundação de persistência, autenticação backend inicial e login frontend inicial. Funcionalidades administrativas ainda não implementadas.
 
 Escopo:
 
@@ -57,10 +57,13 @@ Itens técnicos já iniciados:
 - JWT e refresh token;
 - guards;
 - decorators de permissão.
+- login frontend;
+- BFF de autenticação no Next.js;
+- cookies `HttpOnly` para tokens;
+- dashboard autenticado inicial.
 
 Próxima etapa técnica planejada:
 
-- tela de login;
 - CRUD administrativo de usuários, setores, cargos e permissões;
 - aplicação de guards nos módulos de negócio;
 - services e repositories para usuários, setores, cargos e permissões;

@@ -24,8 +24,9 @@ scripts/
 Há configuração inicial de PostgreSQL local, Prisma e migration de identidade/acesso. A aplicação das migrations depende de um PostgreSQL disponível.
 
 Há autenticação backend inicial com JWT, refresh token, sessões e guards de permissão.
+O frontend possui fluxo inicial de login, BFF de autenticação no Next.js, cookies `HttpOnly`, renovação de token, logout e dashboard autenticado inicial.
 
-Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, tela de login no frontend, CRUD administrativo de usuários ou aplicação de permissões em módulos de negócio.
+Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, CRUD administrativo de usuários ou aplicação de permissões em módulos de negócio.
 
 ## Frontend
 
@@ -65,6 +66,9 @@ Tela atual:
 - página inicial simples do Orion Chat;
 - mensagem "Comunicação interna da contabilidade";
 - status visual de frontend funcionando.
+- rota `/login` com formulário de acesso;
+- rota `/dashboard` autenticada exibindo usuário, cargo, setor e e-mail;
+- Route Handlers `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me` como BFF para o backend.
 
 ## Backend
 
@@ -190,7 +194,17 @@ Senhas, tokens e segredos nunca devem ser versionados.
 
 O modelo `RefreshToken` armazena apenas hash do token. O refresh token é rotacionado no uso.
 
-Ainda não há tela de login, recuperação de senha, troca de senha ou bloqueio por tentativas.
+Autenticação frontend inicial implementada:
+
+- página `/login`;
+- dashboard autenticado em `/dashboard`;
+- BFF Next.js para chamar o backend sem expor tokens ao JavaScript do navegador;
+- access token e refresh token em cookies `HttpOnly`;
+- refresh token não usa `localStorage`;
+- middleware bloqueia dashboard sem cookie de sessão;
+- cliente redireciona para `/login` quando a sessão expira.
+
+Ainda não há recuperação de senha, troca de senha ou bloqueio por tentativas.
 
 ## Autorização e permissões
 

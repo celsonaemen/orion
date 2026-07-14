@@ -23,15 +23,19 @@
 - Seed fictício criado com setores, cargos, permissões e usuários `@orion.local`.
 - Endpoint `GET /health` evoluído para verificar conectividade do banco.
 - PostgreSQL local validado com container `orion-postgres` saudável usando imagem `postgres:17-alpine`.
+- PostgreSQL via Docker publicado localmente em `127.0.0.1:5433->5432/tcp` para evitar conflito com servicos locais na porta 5432 do Windows.
 - Migration e seed validados localmente em 2026-07-14.
 - Dados fictícios confirmados após validação: 7 setores, 4 cargos, 16 permissões, 22 vínculos cargo/permissão, 5 usuários base do seed e 11 usuários fictícios totais após testes de integração.
 - `GET /health` validado com resposta `database: "connected"`.
 - `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso em 2026-07-14.
 - Autenticação backend inicial implementada com `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`.
 - `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions(...)` e `@CurrentUser()` implementados.
+- Login frontend inicial implementado em `/login`.
+- Dashboard autenticado inicial implementado em `/dashboard`.
+- BFF de autenticação implementado no frontend com `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me`.
+- Access token e refresh token são mantidos em cookies `HttpOnly`; refresh token não usa `localStorage`.
 - Nenhum chat implementado.
 - Nenhuma integração implementada.
-- Nenhuma tela de login implementada.
 - Nenhum CRUD administrativo de usuários, setores, cargos ou permissões implementado.
 - Frontend e backend ainda não foram colocados em Docker.
 - Nenhum Socket.IO configurado.
@@ -43,7 +47,7 @@ Fase 1 - Orion Core iniciado tecnicamente no backend.
 
 ## Próximo passo
 
-Auditar e validar a autenticação backend inicial antes de avançar para tela de login, CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat.
+Revisar a autenticação frontend inicial antes de avançar para CRUD administrativo, aplicação de guards nos módulos de negócio ou Orion Chat.
 
 ## Observações
 
