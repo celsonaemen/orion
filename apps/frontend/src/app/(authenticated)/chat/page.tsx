@@ -1,17 +1,14 @@
-import { ComingSoon } from "@/components/app-shell/coming-soon";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { PrivateChatWorkspace } from "@/features/chat/private-chat-workspace";
 
 export default function ChatPage() {
   return (
     <>
       <PageHeader
-        description="Central de comunicacao interna preparada para conversas futuras."
-        title="Chat"
+        description="Converse em tempo real com qualquer colaborador autenticado."
+        title="Comunicacao"
       />
-      <ComingSoon
-        items={["Mensagens em tempo real", "Historico de conversas", "Presenca online"]}
-        title="Comunicacao em construcao"
-      />
+      <PrivateChatWorkspace />
     </>
   );
 }

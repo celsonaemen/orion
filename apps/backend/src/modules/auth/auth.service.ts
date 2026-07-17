@@ -9,10 +9,16 @@ import { PrismaService } from "../../database/prisma/prisma.service";
 import type { LoginDto } from "./dto/login.dto";
 import type { AuthenticatedUser } from "./types/authenticated-user";
 import type { HttpRequest } from "./types/http-request";
-import type { AccessTokenPayload, AuthTokens, RefreshTokenPayload } from "./types/token-payload";
+import type {
+  AccessTokenPayload,
+  AuthTokens,
+  RealtimeTicketPayload,
+  RefreshTokenPayload,
+} from "./types/token-payload";
 
 const DEFAULT_ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const DEFAULT_REFRESH_TOKEN_TTL_DAYS = 7;
+const REALTIME_TICKET_TTL_SECONDS = 60;
 const HASH_SALT_ROUNDS = 10;
 const USER_AGENT_MAX_LENGTH = 512;
 const IP_ADDRESS_MAX_LENGTH = 64;
@@ -206,13 +212,53 @@ export class AuthService {
 
   async validateAccessToken(accessToken: string): Promise<AuthenticatedUser> {
     const payload = await this.verifyAccessToken(accessToken);
+
+    return this.validateActiveSession(payload.sub, payload.sessionId);
+  }
+
+  async issueRealtimeTicket(currentUser: AuthenticatedUser) {
+    this.assertJwtConfig();
+    const payload: RealtimeTicketPayload = {
+      sessionId: currentUser.sessionId,
+      sub: currentUser.id,
+      tokenUse: "realtime",
+    };
+
+    return {
+      expiresIn: REALTIME_TICKET_TTL_SECONDS,
+      ticket: await this.jwtService.signAsync(payload, {
+        expiresIn: REALTIME_TICKET_TTL_SECONDS,
+        secret: this.getAccessTokenSecret(),
+      }),
+    };
+  }
+
+  async validateRealtimeTicket(ticket: string): Promise<AuthenticatedUser> {
+    let payload: RealtimeTicketPayload;
+
+    try {
+      payload = await this.jwtService.verifyAsync<RealtimeTicketPayload>(ticket, {
+        secret: this.getAccessTokenSecret(),
+      });
+    } catch {
+      throw new UnauthorizedException("Invalid realtime ticket.");
+    }
+
+    if (payload.tokenUse !== "realtime" || !payload.sub || !payload.sessionId) {
+      throw new UnauthorizedException("Invalid realtime ticket.");
+    }
+
+    return this.validateActiveSession(payload.sub, payload.sessionId);
+  }
+
+  private async validateActiveSession(userId: string, sessionId: string) {
     const session = await this.prisma.userSession.findUnique({
-      where: { sessionIdentifier: payload.sessionId },
+      where: { sessionIdentifier: sessionId },
     });
 
     if (
       !session ||
-      session.userId !== payload.sub ||
+      session.userId !== userId ||
       session.revokedAt ||
       session.expiresAt <= new Date()
     ) {
@@ -221,7 +267,7 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       include: userWithAccessInclude,
-      where: { id: payload.sub },
+      where: { id: userId },
     });
 
     if (!user || user.deletedAt || user.status !== "ACTIVE") {
@@ -230,10 +276,10 @@ export class AuthService {
 
     await this.prisma.userSession.update({
       data: { lastActivityAt: new Date() },
-      where: { sessionIdentifier: payload.sessionId },
+      where: { sessionIdentifier: sessionId },
     });
 
-    return this.toAuthenticatedUser(user, payload.sessionId);
+    return this.toAuthenticatedUser(user, sessionId);
   }
 
   private async issueTokenPair(

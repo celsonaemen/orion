@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Orion",
-  description: "Fundacao tecnica do Orion Core",
+  title: "Orion | Comunicacao interna",
+  description: "Plataforma interna de comunicacao e gestao da contabilidade.",
 };
 
 type RootLayoutProps = {

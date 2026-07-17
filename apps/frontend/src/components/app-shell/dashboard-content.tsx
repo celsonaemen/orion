@@ -20,13 +20,15 @@ export function DashboardContent() {
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-[var(--orion-text)]">{user.name}</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--orion-muted)]">
-          Voce esta acessando a fundacao autenticada do Orion. O dashboard confirma sessao,
-          usuario, cargo e setor; chat, empresas, notificacoes e administracao entram nas fases
-          seguintes.
+          Voce esta acessando o Orion Core. O dashboard confirma sessao, usuario, cargo e setor; a
+          comunicacao interna por canais ja esta disponivel.
         </p>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="Resumo do dashboard">
+      <section
+        className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+        aria-label="Resumo do dashboard"
+      >
         <DashboardCard label="Usuario logado" value={user.name} description={user.email} />
         <DashboardCard
           label="Setor"
@@ -44,7 +46,11 @@ export function DashboardContent() {
           description="Backend e PostgreSQL validados pelo health check local."
         />
         <DashboardCard label="Empresas" value="Em breve" description="CRUD nao implementado." />
-        <DashboardCard label="Mensagens" value="Em breve" description="Chat real nao implementado." />
+        <DashboardCard
+          label="Mensagens"
+          value="Disponivel"
+          description="Canais internos organizados por setor em Comunicacao."
+        />
         <DashboardCard
           label="Notificacoes"
           value="Em breve"

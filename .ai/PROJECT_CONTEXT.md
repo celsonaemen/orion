@@ -1,49 +1,94 @@
 # Projeto Orion - Contexto Oficial
 
-## O que é o Orion
+## Direção atual
 
-O Orion é uma plataforma web interna planejada para um escritório contábil brasileiro. Ele será usado como uma camada própria de comunicação, organização operacional, acompanhamento de informações internas e suporte a decisões do escritório.
+O Orion é uma aplicação web interna para um escritório contábil brasileiro. A prioridade atual é entregar e validar rapidamente um chat interno simples, no estilo "Slack básico".
 
-O sistema começa pelo Orion Core, uma base inicial para autenticação, usuários, setores, empresas, permissões, dashboard, auditoria e comunicação interna. As integrações externas e recursos de inteligência serão tratados em fases futuras.
+O MVP atual não pretende ser uma plataforma completa de gestão do escritório. A ambição mais ampla do Orion continua registrada como visão de longo prazo, mas não deve aumentar o escopo, bloquear a entrega ou orientar requisitos do MVP simples.
 
-## Problema que o Orion resolve
+## Problema imediato
 
-Escritórios contábeis lidam com muitas conversas, setores, prazos, empresas, documentos, rotinas e responsabilidades distribuídas. Parte dessas informações fica espalhada em e-mail, mensagens, sistemas fiscais, sistemas contábeis e controles paralelos.
+As conversas internas precisam de um ponto único, acessível apenas por usuários autenticados, no qual uma pessoa possa encontrar suas conversas e trocar mensagens com outra pessoa em tempo real.
 
-O Orion existe para centralizar a visão interna do escritório sem substituir os sistemas oficiais. A proposta é criar um ponto único para organizar comunicação, contexto operacional, permissões e acompanhamento interno.
+## MVP atual (simples)
 
-## Contexto do escritório contábil
+### Objetivo
 
-O Orion deve considerar a realidade de um escritório com setores, hierarquia, empresas clientes, prazos fiscais, rotinas mensais, necessidade de supervisão e responsabilidade sobre informações sensíveis.
+Validar com uso real se um chat interno próprio atende à comunicação básica da equipe.
 
-As funcionalidades devem respeitar a hierarquia operacional:
+### Escopo fechado
 
-1. Gerente
-2. Coordenador
-3. Setorial
-4. Auxiliar
+O MVP atual contém somente:
 
-A supervisão gerencial deve ser transparente, controlada por permissão e auditável.
+- usuários autenticados;
+- uma lista de conversas de cada usuário;
+- conversas diretas entre dois usuários autenticados;
+- grupos simples, caso sejam necessários para a validação, sem vínculo obrigatório com setor ou cargo;
+- envio e recebimento de mensagens em tempo real.
 
-## Objetivo do Orion Core
+### Permissões do chat
 
-O Orion Core será a primeira base funcional do sistema. Ele deverá preparar:
+A regra do MVP é simples: um usuário autenticado pode conversar com outro usuário autenticado. O acesso a cada conversa deve ficar limitado aos seus participantes.
 
-- autenticação;
-- usuários;
-- setores;
-- empresas;
-- permissões;
-- dashboard operacional;
-- auditoria;
-- base para notificações;
-- base para comunicação interna.
+O chat do MVP não exige:
 
-O estado atual ja inclui a fundacao do monorepo, PostgreSQL/Prisma, autenticacao, App Shell e administracao inicial de usuarios e setores. Empresas, cargos/permissoes administrativos, comunicacao real e demais modulos continuam pendentes.
+- hierarquia Gerente, Coordenador, Setorial e Auxiliar;
+- permissões `chat.access`, `chat.channels.manage` ou `chat.read_all`;
+- escopo por setor;
+- supervisão gerencial das conversas.
+
+Essas regras poderão ser reavaliadas somente depois da validação do MVP com uso real.
+
+### Auditoria do MVP
+
+Login e logout continuam registrados. Não é requisito do MVP auditar criação de canal, criação de conversa, envio de mensagem ou cada ação realizada dentro do chat.
+
+### Canais e setores
+
+Canais vinculados a setores não são necessários para validar o MVP. A experiência principal deve ser uma lista de conversas diretas; grupos simples podem ser incluídos se ajudarem a validação sem ampliar significativamente o escopo.
+
+### Fora do escopo atual
+
+Qualquer recurso além do escopo fechado acima está fora do MVP atual, incluindo:
+
+- RBAC do chat por cargo ou setor;
+- canais obrigatoriamente vinculados a setores;
+- auditoria detalhada das ações do chat;
+- supervisão gerencial de conversas;
+- módulos de gestão completa do escritório;
+- integrações externas;
+- IA e RAG;
+- GED, OCR e aplicativo mobile.
+
+### Relação com o código existente
+
+O repositório mantém a implementação anterior de chat por canais setoriais, permissões específicas, auditoria de criação de canal e atualização por polling como base legada.
+
+O MVP simples agora está implementado separadamente com pesquisa de colaboradores, conversas diretas 1:1, histórico persistido e mensagens em tempo real via Socket.IO. Grupos simples continuam opcionais e não estão implementados.
+
+## Visão de longo prazo (fases futuras)
+
+Depois que o chat simples for validado com uso real, o Orion poderá evoluir gradualmente para uma plataforma interna mais ampla, considerando:
+
+- canais organizados por setor;
+- hierarquia operacional de Gerente, Coordenador, Setorial e Auxiliar;
+- RBAC detalhado;
+- supervisão gerencial transparente e auditável;
+- auditoria detalhada de ações sensíveis;
+- usuários, setores, empresas, cargos e permissões;
+- dashboard operacional e notificações;
+- tarefas e workflow;
+- documentos e GED;
+- integrações possíveis com Acessórias e Alterdata;
+- RAG local;
+- modelos de IA locais ou provedores externos por uma abstração de provider;
+- automações, dashboards avançados e aplicativo mobile.
+
+Essa visão não constitui requisito do MVP atual e não deve ser implementada sem decisão específica após a validação do chat simples.
 
 ## Sistemas que o Orion não substitui
 
-O Orion não substituirá:
+Mesmo na visão de longo prazo, o Orion não substituirá:
 
 - Alterdata;
 - Acessórias;
@@ -53,53 +98,8 @@ O Orion não substituirá:
 - provedores de e-mail;
 - ferramentas obrigatórias de órgãos públicos.
 
-Esses sistemas poderão ser integrados futuramente, quando houver análise técnica, autorização e desenho seguro.
+Integrações futuras dependerão de levantamento técnico, autorização, regras de segurança e validação do impacto operacional.
 
-## Escopo atual
+## Proteção de dados
 
-O escopo atual e a Fase 1 do Orion Core:
-
-- manter autenticacao e sessoes seguras;
-- administrar usuarios e setores com permissoes explicitas;
-- consolidar dashboard e App Shell;
-- preparar CRUD de cargos, permissoes e empresas;
-- ampliar auditoria administrativa;
-- manter documentacao e testes alinhados ao codigo real.
-
-## Limites atuais
-
-Nesta fase ainda nao deve ser implementado sem aprovacao especifica:
-
-- chat;
-- integrações externas;
-- IA;
-- RAG;
-- GED;
-- OCR;
-- aplicativo mobile.
-
-## Módulos futuros
-
-O Orion poderá evoluir para:
-
-- Orion Core;
-- chat em tempo real;
-- tarefas e workflow;
-- integração com Acessórias;
-- integração possível com Alterdata;
-- documentos e GED;
-- RAG local;
-- modelo de IA local;
-- automações internas;
-- dashboards avançados;
-- aplicativo mobile.
-
-## Alterdata e Acessórias
-
-Alterdata e Acessórias são sistemas externos ao Orion. O Orion não deve tentar substituí-los. Qualquer integração futura deverá ser precedida por levantamento técnico, regras de permissão, logs de auditoria e validação do impacto operacional.
-
-## RAG e IA local
-
-RAG e IA local são fases futuras. A arquitetura deve ser preparada para permitir modelos locais ou provedores externos por meio de uma abstração de provider, sem acoplar o sistema a uma tecnologia específica.
-
-Durante as fases iniciais, documentos reais, dados de clientes e informações sensíveis não devem ser enviados para modelos de IA.
+Dados reais de clientes não devem ser usados em testes, seeds ou exemplos. Durante as fases iniciais, documentos reais, dados de clientes e informações sensíveis não devem ser enviados a modelos de IA.

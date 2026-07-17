@@ -60,6 +60,9 @@ const permissions = [
   ["conversations.read-own", "Ler conversas próprias."],
   ["conversations.read-sector", "Ler conversas do setor quando autorizado."],
   ["conversations.supervise", "Supervisionar conversas com auditoria."],
+  ["chat.access", "Acessar os canais de chat autorizados."],
+  ["chat.channels.manage", "Criar canais nos setores autorizados."],
+  ["chat.read_all", "Ler canais de todos os setores ativos."],
 ] as const;
 
 const rolePermissions = {
@@ -77,6 +80,9 @@ const rolePermissions = {
     "conversations.read-own",
     "conversations.read-sector",
     "conversations.supervise",
+    "chat.access",
+    "chat.channels.manage",
+    "chat.read_all",
   ],
   coordenador: [
     "users.read",
@@ -84,9 +90,11 @@ const rolePermissions = {
     "roles.read",
     "conversations.read-own",
     "conversations.read-sector",
+    "chat.access",
+    "chat.channels.manage",
   ],
-  setorial: ["sectors.read", "conversations.read-own", "conversations.read-sector"],
-  auxiliar: ["conversations.read-own"],
+  setorial: ["sectors.read", "conversations.read-own", "conversations.read-sector", "chat.access"],
+  auxiliar: ["conversations.read-own", "chat.access"],
 } as const;
 
 const users = [
@@ -159,6 +167,21 @@ export async function seedDatabase(prisma: PrismaClient) {
 
   for (const [roleSlug, permissionCodes] of Object.entries(rolePermissions)) {
     const role = await prisma.role.findUniqueOrThrow({ where: { slug: roleSlug } });
+    const desiredPermissions = await prisma.permission.findMany({
+      select: { id: true },
+      where: { code: { in: [...permissionCodes] } },
+    });
+
+    if (desiredPermissions.length !== permissionCodes.length) {
+      throw new Error(`Missing permission while seeding role ${roleSlug}.`);
+    }
+
+    await prisma.rolePermission.deleteMany({
+      where: {
+        permissionId: { notIn: desiredPermissions.map((permission) => permission.id) },
+        roleId: role.id,
+      },
+    });
 
     for (const permissionCode of permissionCodes) {
       const permission = await prisma.permission.findUniqueOrThrow({
@@ -201,6 +224,33 @@ export async function seedDatabase(prisma: PrismaClient) {
         roleId: role.id,
         sectorId: sector.id,
         status: "ACTIVE",
+      },
+    });
+  }
+
+  const channelCreator = await prisma.user.findUniqueOrThrow({
+    where: { email: "admin@orion.local" },
+  });
+  const activeSectors = await prisma.sector.findMany({
+    select: { id: true },
+    where: { isActive: true },
+  });
+
+  for (const sector of activeSectors) {
+    await prisma.channel.upsert({
+      where: {
+        sectorId_slug: {
+          sectorId: sector.id,
+          slug: "geral",
+        },
+      },
+      update: {},
+      create: {
+        createdById: channelCreator.id,
+        description: "Canal geral do setor.",
+        name: "geral",
+        sectorId: sector.id,
+        slug: "geral",
       },
     });
   }

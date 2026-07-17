@@ -12,6 +12,12 @@ export type RefreshTokenPayload = {
   tokenUse: "refresh";
 };
 
+export type RealtimeTicketPayload = {
+  sub: string;
+  sessionId: string;
+  tokenUse: "realtime";
+};
+
 export type AuthTokens = {
   accessToken: string;
   refreshToken: string;

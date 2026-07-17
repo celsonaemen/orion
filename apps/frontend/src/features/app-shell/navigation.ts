@@ -3,7 +3,6 @@ import {
   Building2,
   Gauge,
   MessageSquare,
-  MessagesSquare,
   Settings,
   Shield,
   Users,
@@ -29,30 +28,9 @@ export const navigationItems: NavigationItem[] = [
     label: "Dashboard",
   },
   {
-    children: [
-      {
-        href: "/chat",
-        icon: MessageSquare,
-        label: "Chat",
-        soon: true,
-      },
-      {
-        href: "/chat/groups",
-        icon: MessagesSquare,
-        label: "Grupos",
-        soon: true,
-      },
-      {
-        href: "/chat/private",
-        icon: MessageSquare,
-        label: "Mensagens privadas",
-        soon: true,
-      },
-    ],
     href: "/chat",
     icon: MessageSquare,
     label: "Comunicacao",
-    soon: true,
   },
   {
     href: "/companies",

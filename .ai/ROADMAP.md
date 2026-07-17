@@ -2,95 +2,117 @@
 
 ## Estado geral
 
-A Fase 0 possui fundacao tecnica validada e a Fase 1 esta em andamento. Fases posteriores continuam apenas planejadas.
+A Fase 0 possui fundação técnica validada. Partes da Fase 1 já foram implementadas, mas a prioridade imediata passa a ser a Fase 2A: validar um chat interno simples com uso real.
+
+O MVP de comunicação não deve aguardar a conclusão de uma plataforma completa de gestão do escritório. Recursos robustos de setores, hierarquia, auditoria, integrações, IA e RAG permanecem no roadmap, mas não fazem parte do MVP atual.
 
 ## Fase 0 - Fundação
 
-Status: concluida tecnicamente, com documentacao, monorepo, persistencia e autenticacao inicial validados.
+Status: concluída tecnicamente.
 
-Objetivos:
+Entregas validadas:
 
-- repositório;
-- memória permanente;
-- documentação;
-- decisões;
-- segurança;
-- workspace pnpm;
+- repositório e documentação permanente;
+- monorepo pnpm;
 - frontend Next.js inicial;
 - backend NestJS inicial;
-- pacote compartilhado TypeScript;
-- ferramentas de lint, typecheck, build e formatação;
-- Docker Compose inicial para PostgreSQL local;
-- Prisma configurado;
+- pacote TypeScript compartilhado;
+- lint, typecheck, testes, build e formatação;
+- PostgreSQL local por Docker Compose;
+- Prisma, migrations e seed fictício;
 - modelos iniciais de identidade, acesso, sessão e auditoria;
-- seed fictício de desenvolvimento;
-- autenticação backend inicial;
-- guards JWT e permissões explícitas.
-
-Critério de saída:
-
-- documentação inicial revisada;
-- decisões arquiteturais registradas;
-- regras de desenvolvimento registradas;
-- monorepo validado;
-- validação local com Docker/PostgreSQL disponível;
-- aprovação para avançar para CRUD administrativo e aplicação das permissões nos módulos de negócio.
+- autenticação backend e frontend;
+- sessões, JWT, refresh token e cookies `HttpOnly`.
 
 ## Fase 1 - Orion Core
 
-Status: iniciada tecnicamente pela fundação de persistência, autenticação backend inicial, login frontend inicial e administração inicial de usuários/setores.
+Status: parcialmente implementada; o necessário para autenticar usuários e sustentar o MVP de comunicação está disponível.
 
-Escopo:
+Já implementado:
 
-- autenticação;
-- usuários;
-- setores;
+- autenticação e sessões;
+- usuários e setores;
+- dashboard e App Shell;
+- administração inicial de usuários e setores;
+- permissões administrativas existentes;
+- auditoria básica já existente;
+- BFF Next.js para comunicação com o backend.
+
+Adiado até depois da validação do MVP simples:
+
+- CRUD administrativo de cargos e permissões;
 - empresas;
-- permissões;
-- dashboard;
-- auditoria.
-
-Itens técnicos já iniciados:
-
-- autenticação;
-- hashing de senha no fluxo real;
-- JWT e refresh token;
-- guards;
-- decorators de permissão.
-- login frontend;
-- BFF de autenticação no Next.js;
-- cookies `HttpOnly` para tokens;
-- dashboard autenticado inicial.
-- App Shell autenticado inicial;
-- navegacao principal para modulos futuros;
-- placeholders autenticados para chat, empresas, notificacoes, administracao e configuracoes;
-- tema claro/escuro preparado.
-- CRUD inicial de usuarios;
-- CRUD inicial de setores;
-- aplicacao de permissoes explicitas nos endpoints administrativos de usuarios e setores.
-- escopo setorial para leitura administrativa nao gerencial;
-- auditoria basica de criacao, edicao e status;
-- testes integrados sem limpeza global do banco local.
-
-Próxima etapa técnica planejada:
-
-- CRUD administrativo de cargos e permissoes;
-- aplicacao de guards nos proximos modulos de negocio;
-- services e repositories para empresas, cargos e permissoes;
-- ampliacao da consulta e da interface de auditoria administrativa.
+- ampliação da auditoria administrativa;
+- repositories completos para os módulos de negócio;
+- demais recursos de gestão do escritório que não sejam necessários ao chat simples.
 
 ## Fase 2 - Comunicação
 
-Status: planejada.
+Status: reorientada para um MVP simples. O repositório mantém a implementação anterior de canais setoriais com polling como base legada, sem tratá-la como contrato funcional do MVP atual.
 
-Escopo:
+### Fase 2A - MVP simples
 
-- mensagens privadas;
-- grupos;
-- Socket.IO;
+Status: implementada tecnicamente e aguardando validação com uso real pelos colaboradores.
+
+Escopo obrigatório:
+
+- usuários autenticados;
+- lista de conversas do usuário;
+- conversas diretas entre dois usuários autenticados;
+- mensagens enviadas e recebidas em tempo real.
+
+Escopo opcional, somente se não atrasar a validação:
+
+- grupos simples sem vínculo obrigatório com setor ou cargo.
+
+Regras simplificadas:
+
+- usuário autenticado pode conversar com outro usuário autenticado;
+- somente participantes acessam a conversa;
+- sem RBAC de chat por cargo, hierarquia ou setor;
+- login e logout continuam auditados;
+- criação de canal, criação de conversa e ações internas do chat não exigem auditoria detalhada;
+- canais por setor não são requisito.
+
+Critério de saída:
+
+- dois usuários autenticados conseguem acessar suas conversas e trocar mensagens em tempo real;
+- o fluxo funciona de ponta a ponta e pode ser validado com uso real;
+- nenhum recurso fora do escopo simples bloqueia a entrega.
+
+Validação técnica concluída em 2026-07-16:
+
+- pesquisa de colaborador e criação idempotente de conversa 1:1;
+- histórico persistido e paginado;
+- Socket.IO autenticado por ticket curto emitido via BFF;
+- troca em tempo real nos dois sentidos entre dois usuários;
+- persistência após recarregar;
+- layout desktop e mobile sem overflow;
+- isolamento da conversa aos participantes;
+- lint, typecheck, 43 testes backend, 29 testes frontend e build aprovados.
+
+Pendente para concluir a validação do produto:
+
+- uso real pelos colaboradores;
+- registrar feedback e corrigir problemas observados no fluxo diário;
+- decidir se grupos simples são necessários antes da Fase 2B.
+
+### Fase 2B - Comunicação robusta
+
+Status: planejada para depois da validação do MVP simples.
+
+Possibilidades futuras:
+
+- canais por setor;
+- grupos avançados;
+- hierarquia Gerente, Coordenador, Setorial e Auxiliar aplicada ao chat;
+- RBAC detalhado;
+- supervisão gerencial controlada;
+- auditoria detalhada de ações sensíveis;
 - notificações;
 - presença online;
-- lido e não lido.
+- lido e não lido;
+- demais recursos definidos a partir do uso real.
 
 ## Fase 3 - Tarefas e workflow
 

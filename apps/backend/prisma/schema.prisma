@@ -20,6 +20,12 @@ enum AuditAction {
   ROLE_ASSIGNED
   SECTOR_ASSIGNED
   ADMIN_CONVERSATION_ACCESSED
+  CHAT_CHANNEL_CREATED
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
 }
 
 model Sector {
@@ -31,7 +37,8 @@ model Sector {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  users User[]
+  users    User[]
+  channels Channel[]
 }
 
 model Role {
@@ -81,15 +88,96 @@ model User {
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
 
-  sector        Sector?        @relation(fields: [sectorId], references: [id], onDelete: Restrict)
-  role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  refreshTokens RefreshToken[]
-  sessions      UserSession[]
-  auditLogs     AuditLog[]
+  sector                  Sector?                   @relation(fields: [sectorId], references: [id], onDelete: Restrict)
+  role                    Role                      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  refreshTokens           RefreshToken[]
+  sessions                UserSession[]
+  auditLogs               AuditLog[]
+  createdChannels         Channel[]                 @relation("ChannelCreator")
+  chatMessages            Message[]                 @relation("MessageAuthor")
+  conversationMemberships ConversationParticipant[]
+  conversationMessages    ConversationMessage[]     @relation("ConversationMessageAuthor")
 
   @@index([sectorId])
   @@index([roleId])
   @@index([status])
+}
+
+model Channel {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(120)
+  slug        String   @db.VarChar(80)
+  description String?  @db.VarChar(240)
+  sectorId    String   @db.Uuid
+  createdById String   @db.Uuid
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sector    Sector    @relation(fields: [sectorId], references: [id], onDelete: Restrict)
+  createdBy User      @relation("ChannelCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  messages  Message[]
+
+  @@unique([sectorId, slug])
+  @@index([sectorId, isActive])
+  @@index([createdById])
+}
+
+model Message {
+  id        String   @id @default(uuid()) @db.Uuid
+  channelId String   @db.Uuid
+  authorId  String   @db.Uuid
+  content   String   @db.VarChar(4000)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  author  User    @relation("MessageAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([channelId, createdAt, id])
+  @@index([authorId])
+}
+
+model Conversation {
+  id            String           @id @default(uuid()) @db.Uuid
+  type          ConversationType @default(DIRECT)
+  title         String?          @db.VarChar(120)
+  directKey     String?          @unique @db.VarChar(73)
+  lastMessageAt DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  participants ConversationParticipant[]
+  messages     ConversationMessage[]
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  conversationId String   @db.Uuid
+  userId         String   @db.Uuid
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@id([conversationId, userId])
+  @@index([userId, conversationId])
+}
+
+model ConversationMessage {
+  id             String   @id @default(uuid()) @db.Uuid
+  conversationId String   @db.Uuid
+  authorId       String   @db.Uuid
+  content        String   @db.VarChar(4000)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author       User         @relation("ConversationMessageAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([conversationId, createdAt, id])
+  @@index([authorId])
 }
 
 model RefreshToken {

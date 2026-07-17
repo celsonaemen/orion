@@ -1,12 +1,39 @@
 # Arquitetura Planejada do Orion
 
-## Estado da arquitetura
+## Como interpretar este documento
 
-Este documento descreve a arquitetura planejada e o estado técnico inicial já criado. Itens marcados como planejados não devem ser interpretados como implementados até que exista código, configuração e validação correspondente no repositório.
+Este documento separa o estado técnico já existente do alvo funcional atual. Código existente não deve ser confundido com requisito do produto, e item planejado não deve ser descrito como implementado sem código e validação correspondentes.
+
+O alvo imediato é um chat interno simples. A arquitetura de uma plataforma completa de gestão do escritório permanece como visão de longo prazo e não deve aumentar o escopo do MVP atual.
+
+## Arquitetura do MVP atual (simples)
+
+O MVP deve suportar somente:
+
+- usuários autenticados;
+- lista de conversas do usuário;
+- conversas diretas entre usuários autenticados;
+- grupos simples opcionais, sem vínculo obrigatório com setor ou cargo;
+- mensagens em tempo real.
+
+Regras arquiteturais do MVP:
+
+- o chat exige autenticação e participação na conversa;
+- cargo, hierarquia e setor não controlam quem pode conversar nesta fase;
+- canais vinculados a setores não são obrigatórios;
+- login e logout continuam auditados;
+- criação de canal, criação de conversa e ações internas do chat não exigem auditoria detalhada;
+- integrações, IA, RAG e módulos de gestão do escritório não podem bloquear a entrega.
+
+## Estado técnico existente
+
+O repositório possui autenticação, administração inicial de usuários e setores e uma implementação anterior de chat por canais setoriais, permissões específicas, mensagens persistidas e polling.
+
+O MVP simples foi implementado em uma trilha separada: pesquisa de usuários ativos, conversas diretas idempotentes, participantes, mensagens persistidas e entrega em tempo real por Socket.IO. A base anterior de canais permanece preservada, mas não representa o contrato funcional atual.
 
 ## Monorepo
 
-O Orion está organizado como monorepo pnpm para manter frontend, backend, pacote compartilhado e documentação no mesmo repositório.
+O Orion usa um monorepo pnpm para manter frontend, backend, pacote compartilhado e documentação no mesmo repositório.
 
 Estrutura atual:
 
@@ -21,16 +48,14 @@ docs/
 scripts/
 ```
 
-Há configuração inicial de PostgreSQL local, Prisma e migration de identidade/acesso. A aplicação das migrations depende de um PostgreSQL disponível.
-
-Há autenticação backend inicial com JWT, refresh token, sessões e guards de permissão.
-O frontend possui fluxo inicial de login, BFF de autenticação no Next.js, cookies `HttpOnly`, renovação de token, logout e dashboard autenticado inicial.
-
-Há administração inicial de usuários e setores com RBAC no backend e BFF no frontend. Ainda não há chat funcional, Socket.IO, integrações externas, IA, RAG, CRUD de cargos/permissões, CRUD de empresas ou notificações reais.
+- `apps/frontend`: aplicação Next.js.
+- `apps/backend`: API NestJS e Prisma.
+- `packages/shared`: tipos TypeScript compartilhados iniciais.
+- `.ai`: contexto, decisões, arquitetura, estado e roadmap oficiais.
 
 ## Frontend
 
-Frontend criado:
+Stack atual:
 
 - Next.js;
 - React;
@@ -39,55 +64,58 @@ Frontend criado:
 - App Router;
 - diretório `src/`.
 
-Shadcn/UI continua planejado para fases futuras de interface, mas ainda não foi configurado.
-
-Responsabilidades do frontend:
-
-- renderizar telas e fluxos de usuário;
-- consumir APIs do backend;
-- receber eventos de tempo real autorizados;
-- aplicar estados visuais e experiência de uso;
-- não acessar diretamente o banco de dados;
-- não conter regra de negócio crítica.
+Shadcn/UI permanece apenas planejado.
 
 Telas implementadas:
 
 - login;
 - dashboard;
 - usuários;
-- setores.
+- setores;
+- comunicação por conversas privadas em tempo real.
 
-Telas futuras previstas:
+Implementação legada preservada:
+
+- backend, schema e componentes do chat anterior por canais setoriais.
+
+Rotas placeholder existentes:
 
 - empresas;
-- chat;
 - notificações;
+- administração;
 - configurações.
 
-Estado atual do frontend:
+Responsabilidades do frontend no MVP simples:
 
-- rota `/login` com formulário de acesso;
-- rota `/dashboard` autenticada exibindo usuário, cargo, setor e e-mail;
-- Route Handlers `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` e `/api/auth/me` como BFF para o backend.
-- App Shell autenticado compartilhado para rotas internas;
-- sidebar com navegacao principal e placeholders para modulos futuros;
-- header com usuario autenticado, tema, notificacoes placeholder e menu de usuario;
-- rotas placeholder autenticadas para `/chat`, `/companies`, `/notifications`, `/admin` e `/settings`.
-- telas administrativas reais para `/users` e `/sectors`, com BFF em `/api/users` e `/api/sectors`.
+- autenticar o usuário pelo fluxo existente;
+- exibir a lista de conversas do usuário;
+- abrir uma conversa;
+- enviar e receber mensagens em tempo real;
+- representar estados de carregamento, vazio e erro;
+- não acessar diretamente o banco;
+- não concentrar regra de negócio crítica.
+
+Rotas BFF implementadas para o MVP simples:
+
+- `GET /api/chat/users`;
+- `GET /api/chat/conversations`;
+- `POST /api/chat/conversations/direct`;
+- `GET /api/chat/conversations/:conversationId/messages`;
+- `POST /api/chat/conversations/:conversationId/messages`;
+- `POST /api/chat/realtime-ticket`.
 
 ## Backend
 
-Backend criado:
+Stack atual:
 
 - NestJS;
 - Node.js;
 - TypeScript;
 - arquitetura modular;
-- dependency injection;
-- service layer;
-- acesso a dados centralizado pelo `PrismaService`;
-- DTOs;
-- validação de entrada.
+- injeção de dependência;
+- services;
+- DTOs e validação de entrada;
+- acesso a dados pelo `PrismaService`.
 
 Módulos atuais:
 
@@ -96,196 +124,176 @@ Módulos atuais:
 - prisma;
 - auth;
 - users;
-- sectors.
+- sectors;
+- chat.
 
 Endpoints atuais:
 
-- `GET /health`, retornando status operacional do backend e conectividade do banco quando PostgreSQL estiver disponível.
+- `GET /health`;
 - `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` e `GET /auth/me`;
-- `GET /users`, `GET /users/options`, `GET /users/:id`, `POST /users`, `PATCH /users/:id` e `PATCH /users/:id/status`;
-- `GET /sectors`, `GET /sectors/:id`, `POST /sectors` e `PATCH /sectors/:id`.
+- endpoints administrativos de usuários;
+- endpoints administrativos de setores;
+- endpoints do chat anterior para canais e mensagens;
+- `GET /chat/users`;
+- `GET /chat/conversations`;
+- `POST /chat/conversations/direct`;
+- `GET /chat/conversations/:conversationId/messages`;
+- `POST /chat/conversations/:conversationId/messages`;
+- `POST /chat/realtime-ticket`.
 
-Módulos futuros previstos:
+Responsabilidades do backend no MVP simples:
 
-- companies;
-- roles;
-- permissions;
-- chat;
-- notifications;
-- audit-log;
+- validar autenticação e sessão;
+- limitar cada conversa aos seus participantes;
+- listar as conversas do usuário;
+- persistir e entregar mensagens;
+- distribuir mensagens em tempo real;
+- manter regras de negócio fora dos controllers.
 
-Controllers devem receber requisições, validar o contrato de entrada e retornar respostas. Regras de negócio devem ficar em services ou use cases. Persistência deve passar por repositories.
+O `ChatController` exige apenas `JwtAuthGuard` nas rotas privadas. As rotas legadas de canais continuam adicionando `PermissionsGuard` e suas permissões antigas.
 
-O isolamento completo por repositories continua planejado. Os modulos atuais de autenticacao, usuarios e setores ainda acessam `PrismaService` a partir dos services e nao devem ser descritos como repository pattern concluido.
+O isolamento completo por repositories permanece planejado. Os services atuais acessam o `PrismaService` diretamente, portanto repository pattern não deve ser descrito como concluído.
 
-## Banco de dados
+## Banco de dados e Prisma
 
-Banco planejado e configurado para desenvolvimento local:
+Persistência atual:
 
-- PostgreSQL.
+- PostgreSQL;
+- Prisma 7;
+- `@prisma/adapter-pg`;
+- UUID nativo do PostgreSQL;
+- `DATABASE_URL` carregada por `prisma.config.ts`, fora do `schema.prisma`.
 
-Configuração atual:
+Infraestrutura local atual:
 
-- `docker-compose.yml` com serviço `postgres`;
+- Docker Compose;
 - imagem `postgres:17-alpine`;
-- volume nomeado `orion_postgres_data`;
-- variáveis locais fictícias de desenvolvimento;
-- healthcheck com `pg_isready`.
+- volume `orion_postgres_data`;
+- healthcheck com `pg_isready`;
+- porta `127.0.0.1:5433` no host.
 
-Entidades iniciais criadas no Prisma:
+Models existentes:
 
 - User;
 - Sector;
 - Role;
 - Permission;
 - RolePermission;
+- RefreshToken;
+- UserSession;
 - AuditLog;
-- RefreshToken.
-- UserSession.
-
-Entidades ainda planejadas para fases futuras:
-
-- Company;
-- Conversation;
+- Channel;
 - Message;
-- Notification.
+- Conversation;
+- ConversationParticipant;
+- ConversationMessage.
 
-O desenho do banco deverá considerar isolamento por permissão, auditoria, rastreabilidade e futuras integrações.
+Migrations existentes:
 
-## Prisma
+- `20260713203600_init_identity_and_access`;
+- `20260716130000_add_chat_mvp`;
+- `20260716170000_add_private_conversations`.
 
-Prisma 7 está configurado no backend como ORM de persistência.
+`Conversation` identifica a conversa e mantém `directKey` única para pares 1:1. `ConversationParticipant` controla participação, e `ConversationMessage` persiste mensagens de até 4.000 caracteres com índice para paginação cronológica. O modelo de grupos simples ainda não foi validado na aplicação, embora o enum reserve o tipo `GROUP`.
 
-Arquivos atuais:
+## Mensagens em tempo real
 
-- `apps/backend/prisma.config.ts`;
-- `apps/backend/prisma/schema.prisma`;
-- `apps/backend/prisma/seed.ts`;
-- `apps/backend/prisma/migrations/20260713203600_init_identity_and_access/migration.sql`.
+Mensagens em tempo real estão implementadas com Socket.IO e o gateway NestJS `ChatRealtimeGateway`, no namespace `/chat`.
 
-Como Prisma 7 removeu a URL do datasource no schema, a URL é definida em `prisma.config.ts` a partir de `DATABASE_URL`. O Prisma Client usa `@prisma/adapter-pg` para conexão direta com PostgreSQL.
+O navegador solicita pelo BFF um ticket JWT de 60 segundos. O gateway valida ticket, usuário ativo e sessão antes de associar o socket à sala `user:<userId>`. Quando uma mensagem é persistida, o backend emite `conversation.message` e `conversation.updated` somente às salas dos participantes.
 
-Regras planejadas:
+O cliente renova o ticket ao reconectar e mantém access token e refresh token fora do JavaScript. O polling de 4 segundos permanece apenas no chat legado por canais. Presença, indicador de digitação, lido/não lido e notificações não fazem parte do MVP simples.
 
-- migrations revisáveis;
-- nomes claros de modelos e relações;
-- evitar lógica de negócio dentro da camada de acesso a dados;
-- usar repositories para isolar Prisma do restante da aplicação.
-- usar UUID nativo do PostgreSQL para identificadores iniciais.
+## Autenticação e BFF
 
-## Socket.IO
+Autenticação backend já implementada:
 
-Socket.IO será usado para comunicação em tempo real em fase futura. Ainda não foi instalado nem configurado.
-
-Casos planejados:
-
-- mensagens privadas;
-- grupos por setor;
-- notificações internas;
-- presença online;
-- estado de lido e não lido.
-
-Eventos em tempo real deverão respeitar autenticação, autorização e auditoria.
-
-## Autenticação
-
-Autenticação backend inicial implementada:
-
-- JWT;
-- refresh token;
+- JWT de acesso;
+- refresh token com rotação;
 - bcrypt para senhas;
-- proteção de sessão;
-- expiração e revogação de tokens.
-- endpoint `POST /auth/login`;
-- endpoint `POST /auth/refresh`;
-- endpoint `POST /auth/logout`;
-- endpoint `GET /auth/me`.
+- sessão persistida;
+- expiração e revogação;
+- `POST /auth/login`;
+- `POST /auth/refresh`;
+- `POST /auth/logout`;
+- `GET /auth/me`.
 
-Senhas, tokens e segredos nunca devem ser versionados.
+O `RefreshToken` armazena somente o hash. Access tokens são validados junto de uma `UserSession` ativa.
 
-O modelo `RefreshToken` armazena apenas hash do token. O refresh token é rotacionado no uso.
+Autenticação frontend já implementada:
 
-Autenticação frontend inicial implementada:
-
-- página `/login`;
-- dashboard autenticado em `/dashboard`;
-- App Shell autenticado para as rotas internas;
-- BFF Next.js para chamar o backend sem expor tokens ao JavaScript do navegador;
+- BFF com Route Handlers Next.js;
 - access token e refresh token em cookies `HttpOnly`;
-- refresh token não usa `localStorage`;
-- middleware bloqueia rotas autenticadas sem cookie de sessão;
-- cliente redireciona para `/login` quando a sessão expira.
-- falha transitoria de backend nao remove o refresh token local;
-- resultados de refresh bem-sucedidos podem ser reutilizados por uma janela curta no mesmo processo para atender requisicoes atrasadas.
+- `SameSite=Lax` e `Secure` em produção;
+- nenhum refresh token em `localStorage`;
+- middleware de proteção das rotas autenticadas;
+- coordenação de renovações simultâneas;
+- preservação da sessão local em falhas transitórias.
 
-Ainda não há recuperação de senha, troca de senha ou bloqueio por tentativas.
+O BFF continua sendo o caminho entre navegador e backend no MVP simples. Para o Socket.IO, ele retorna somente um ticket curto e limitado à conexão em tempo real; access token, refresh token e segredos não são expostos ao JavaScript nem versionados.
 
-## Autorização e permissões
+## Autorização
 
-A autorização deverá respeitar a hierarquia:
+### MVP simples de chat
 
-1. Gerente
-2. Coordenador
-3. Setorial
-4. Auxiliar
+A autorização é deliberadamente mínima:
 
-Regras conceituais:
+- o usuário deve estar autenticado;
+- o usuário pode conversar com outro usuário autenticado;
+- somente participantes podem acessar uma conversa;
+- cargo, nível hierárquico e setor não concedem nem retiram acesso ao chat nesta fase;
+- `chat.access`, `chat.channels.manage` e `chat.read_all` não são requisitos do MVP simples.
 
-- Gerente poderá supervisionar todas as conversas e operações autorizadas;
-- Coordenador poderá supervisionar seu setor;
-- Setorial terá acesso operacional ao seu setor;
-- Auxiliar terá acesso apenas às conversas, grupos e tarefas autorizadas.
+### Administração existente
 
-Acesso gerencial deve ser controlado, transparente e auditável.
+O RBAC já implementado para usuários e setores continua existindo no código administrativo:
 
-Implementação inicial:
+- `JwtAuthGuard`;
+- `PermissionsGuard`;
+- `@RequirePermissions(...)`;
+- `@CurrentUser()`;
+- permissões explícitas nos endpoints administrativos.
 
-- `JwtAuthGuard` valida access token e sessão ativa;
-- `PermissionsGuard` valida permissões explícitas;
-- `@RequirePermissions(...)` define permissões exigidas;
-- `@CurrentUser()` expõe o usuário autenticado para controllers.
-- endpoints administrativos de usuários e setores exigem permissões explícitas no backend.
-- usuarios com nivel hierarquico maior que 1 e permissao `users.read` ficam limitados ao proprio setor; nivel 1 possui visao global.
+Esse RBAC administrativo não deve ser usado como requisito para iniciar ou concluir o MVP simples de chat.
 
-A hierarquia é apoio operacional. A autorização real deve depender de permissões explícitas.
+### Visão de longo prazo
+
+Depois da validação do MVP, poderão ser reavaliados hierarquia Gerente, Coordenador, Setorial e Auxiliar, canais por setor, supervisão gerencial e permissões detalhadas de comunicação.
 
 ## Auditoria
 
-Auditoria é parte central da arquitetura.
+No MVP simples, somente login e logout são requisitos de auditoria.
 
-Eventos atualmente auditados:
+Não é requisito auditar:
 
-- login e logout;
-- criação e alteração de usuários;
-- ativação e desativação de usuários;
-- criação e alteração de setores.
+- criação de canal;
+- criação de conversa;
+- envio de mensagem;
+- cada ação interna do chat.
 
-Eventos futuros a auditar:
+O código existente já registra outros eventos administrativos e criação de canal. Esses registros pertencem à implementação anterior ou aos módulos administrativos; não são critério de aceite do MVP simples e não serão alterados nesta etapa documental.
 
-- alterações de permissões;
-- acessos gerenciais;
-- leitura de informações sensíveis;
-- ações administrativas;
-- integrações externas.
+Auditoria detalhada de ações sensíveis, supervisão gerencial e integrações permanece como visão de longo prazo.
 
-Logs de auditoria devem registrar ator, ação, alvo, horário e metadados necessários, sem expor segredos.
+## Fora do escopo arquitetural do MVP
 
-## Integrações futuras
+Não fazem parte do MVP simples:
 
-Integrações com Alterdata, Acessórias, GED, OCR, e-mail, WhatsApp ou sistemas oficiais não fazem parte da fase inicial.
+- canais obrigatórios por setor;
+- RBAC completo do chat;
+- auditoria detalhada;
+- presença online;
+- lido e não lido;
+- notificações;
+- tarefas e workflow;
+- empresas e gestão completa do escritório;
+- integrações com Alterdata, Acessórias, GED, OCR, e-mail, WhatsApp ou sistemas oficiais;
+- RAG;
+- IA;
+- aplicativo mobile.
 
-Quando forem avaliadas, deverão ser implementadas como módulos isolados, com contratos claros, permissões, logs e tratamento de falhas.
+## Visão de longo prazo
 
-## Provider abstrato de IA
+Após validação com uso real, a arquitetura poderá evoluir para módulos isolados de empresas, cargos, permissões, notificações, auditoria, tarefas, integrações, documentos, RAG e IA.
 
-O backend deverá ser preparado futuramente para uma abstração de provider de IA. Essa abstração deve permitir troca entre modelos locais e provedores externos sem acoplamento direto ao domínio.
-
-Possibilidades futuras:
-
-- LM Studio;
-- Gemma;
-- DeepSeek;
-- outros modelos locais;
-- provedores externos autorizados.
-
-Nenhum provider de IA está implementado nesta fase.
+Integrações externas deverão ter contratos claros, permissões, logs e tratamento de falhas. Uma futura camada de IA deverá usar provider abstrato compatível com modelos locais ou provedores externos autorizados, sem acoplamento direto ao domínio.

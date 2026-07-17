@@ -23,9 +23,9 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 17. Orion não substituirá Acessórias.
 18. Orion não substituirá e-CAC nem sistemas oficiais.
 19. Integrações externas serão tratadas somente em fases futuras.
-20. Permissões seguirão a hierarquia Gerente, Coordenador, Setorial e Auxiliar.
-21. Acesso gerencial será auditável.
-22. Supervisão gerencial deverá ser transparente e controlada por permissão.
+20. Permissões seguirão a hierarquia Gerente, Coordenador, Setorial e Auxiliar. **Status: fora do escopo do MVP simples de chat; permanece como visão de longo prazo.**
+21. Acesso gerencial será auditável. **Status: fora do escopo do MVP simples de chat; permanece como visão de longo prazo.**
+22. Supervisão gerencial deverá ser transparente e controlada por permissão. **Status: fora do escopo do MVP simples de chat; permanece como visão de longo prazo.**
 23. RAG será implementado somente em fase futura.
 24. IA será implementada somente em fase futura.
 25. O backend usará uma abstração para permitir Gemma, DeepSeek, LM Studio ou provedores externos.
@@ -47,7 +47,7 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 41. A autenticação backend inicial usará JWT de acesso e refresh token com rotação.
 42. Access tokens serão validados junto da sessão ativa no banco por meio de `UserSession`.
 43. Refresh tokens serão identificados por `tokenId` no payload e comparados contra hash armazenado no banco.
-44. A autorização inicial usará permissões explícitas com `@RequirePermissions(...)` e `PermissionsGuard`.
+44. A autorização inicial usará permissões explícitas com `@RequirePermissions(...)` e `PermissionsGuard`. **Status: continua válida para módulos administrativos; não é requisito de autorização do chat no MVP simples.**
 45. Guards de autenticação e permissão não serão globais nesta etapa; controllers devem optar explicitamente por `@UseGuards`.
 46. O frontend usará um BFF com Route Handlers do Next.js para autenticar contra o backend NestJS sem expor tokens ao JavaScript do navegador.
 47. Access token e refresh token do frontend serão armazenados em cookies `HttpOnly`, com `SameSite=Lax` e `Secure` em produção.
@@ -67,3 +67,25 @@ Este arquivo registra decisões oficiais do Projeto Orion. Toda decisão técnic
 61. Suites de integracao que usam o PostgreSQL local devem rastrear e remover somente os registros que criarem; limpeza global de sessoes, tokens ou dados existentes e proibida.
 62. O BFF podera reutilizar por uma janela curta o resultado bem-sucedido de refresh para atender requisicoes atrasadas com o cookie anterior. Somente `invalid_session` limpará cookies; falhas transitorias retornarao indisponibilidade sem destruir a sessao local.
 63. Opcoes administrativas podem listar cargos e setores inativos para preservar vinculos existentes em edicao, mas novos vinculos continuam aceitando somente registros ativos.
+64. O primeiro MVP de comunicacao usara canais vinculados a setores, persistidos por `Channel` e `Message`, antes da introducao de conversas privadas ou grupos livres. **Status: supersedida pelo novo escopo do MVP simples, definido nas decisões 73 a 77.**
+65. A autorizacao do chat usara as permissoes explicitas `chat.access`, `chat.channels.manage` e `chat.read_all`; sem `chat.read_all`, o usuario fica restrito ao proprio setor. **Status: supersedida pelo novo escopo do MVP simples, definido nas decisões 73 a 77.**
+66. O MVP de chat atualizara mensagens por polling de 4 segundos. Socket.IO permanece a decisao para tempo real em etapa posterior e nao faz parte deste MVP. **Status: supersedida pelo novo escopo do MVP simples, que exige mensagens em tempo real.**
+67. Mensagens terao limite de 4.000 caracteres e historico paginado por cursor composto de data e identificador, com limite padrao de 50 e maximo de 100 itens por requisicao.
+68. O frontend do chat usara BFF com Route Handlers do Next.js, mantendo tokens somente nos cookies `HttpOnly` ja existentes.
+69. Criacao de canais sera auditada sem armazenar conteudo de mensagens nos metadados; o seed local criara um canal `geral` para cada setor ativo. **Status: supersedida como requisito do MVP simples; permanece apenas como histórico da implementação anterior.**
+70. O seed ficticio local sincronizara exatamente a matriz `rolePermissions`, removendo vinculos obsoletos dos quatro cargos gerenciados antes de garantir os vinculos atuais.
+71. O backend em desenvolvimento sera executado a partir do JavaScript emitido pelo TypeScript, com `tsc --watch` e `node --watch`, para preservar os metadados de decorators exigidos pela injecao de dependencia do NestJS.
+72. A rota raiz do frontend sera uma entrada operacional: `/` redireciona para `/dashboard`, deixando o middleware encaminhar usuarios sem sessao para `/login`; a antiga pagina tecnica nao sera exibida ao usuario.
+
+## Revisão de escopo do MVP de comunicação
+
+73. O MVP atual de comunicação terá escopo fechado em usuários autenticados, lista de conversas, conversas diretas, grupos simples opcionais e mensagens em tempo real.
+74. A autorização do chat no MVP simples exigirá apenas autenticação e participação na conversa; cargo, hierarquia e setor não definirão quem pode conversar.
+75. A auditoria obrigatória do MVP simples ficará limitada a login e logout; criação de canal, criação de conversa e ações internas do chat não precisarão de auditoria detalhada nesta fase.
+76. Canais por setor, permissões `chat.access`, `chat.channels.manage` e `chat.read_all`, supervisão gerencial e RBAC completo ficam reservados para uma versão robusta posterior à validação com uso real.
+77. A implementação existente de canais setoriais e polling é uma base técnica anterior, não o contrato funcional do novo MVP; qualquer mudança de código será decidida somente após esta revisão documental.
+78. Conversas privadas serão persistidas por `Conversation`, `ConversationParticipant` e `ConversationMessage`, sem remover as tabelas legadas de canais.
+79. Uma conversa direta usará `directKey` canônica e única, formada pelos dois UUIDs ordenados, para impedir duplicidade entre o mesmo par de usuários.
+80. O tempo real do MVP usará Socket.IO no namespace `/chat`, com salas individuais por usuário participante.
+81. O navegador autenticará o Socket.IO por um ticket JWT de 60 segundos emitido pelo backend através do BFF; access token e refresh token continuarão inacessíveis ao JavaScript por cookies `HttpOnly`.
+82. Pesquisa e conversas privadas exigirão apenas sessão ativa; leitura e envio exigirão participação na conversa, sem `chat.access`, hierarquia ou escopo setorial.
