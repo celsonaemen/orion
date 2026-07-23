@@ -1,0 +1,145 @@
+name: orion-production
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-orion}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:-orion}
+    expose:
+      - "5432"
+    volumes:
+      - orion_postgres_production:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+
+  backend-migrate:
+    image: ${ORION_BACKEND_IMAGE:-orion-backend:local}
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    command:
+      [
+        "./apps/backend/node_modules/.bin/prisma",
+        "migrate",
+        "deploy",
+        "--config",
+        "apps/backend/prisma.config.ts",
+      ]
+    environment: &backend-environment
+      BACKEND_HOST: 0.0.0.0
+      BACKEND_PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:?Configure DATABASE_URL}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:?Configure FRONTEND_ORIGIN}
+      JWT_ACCESS_TOKEN_TTL_SECONDS: ${JWT_ACCESS_TOKEN_TTL_SECONDS:-900}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Configure JWT_REFRESH_SECRET}
+      JWT_REFRESH_TOKEN_TTL_SECONDS: ${JWT_REFRESH_TOKEN_TTL_SECONDS:-604800}
+      JWT_SECRET: ${JWT_SECRET:?Configure JWT_SECRET}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  backend:
+    image: ${ORION_BACKEND_IMAGE:-orion-backend:local}
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
+    environment: *backend-environment
+    expose:
+      - "3001"
+    depends_on:
+      backend-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  bootstrap-admin:
+    profiles: ["bootstrap"]
+    image: ${ORION_BACKEND_IMAGE:-orion-backend:local}
+    command: ["./apps/backend/node_modules/.bin/tsx", "apps/backend/prisma/bootstrap-production.ts"]
+    environment: *backend-environment
+    depends_on:
+      backend-migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    image: ${ORION_FRONTEND_IMAGE:-orion-frontend:local}
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_REALTIME_URL: ${NEXT_PUBLIC_REALTIME_URL:-}
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:3001
+      JWT_REFRESH_TOKEN_TTL_SECONDS: ${JWT_REFRESH_TOKEN_TTL_SECONDS:-604800}
+      NODE_ENV: production
+    expose:
+      - "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  gateway:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    ports:
+      - "${ORION_PORT:-8080}:8080"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  orion_postgres_production:

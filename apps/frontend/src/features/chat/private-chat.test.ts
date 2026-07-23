@@ -55,6 +55,10 @@ test("private conversations are merged and ordered by recent activity", () => {
   assert.equal(privateConversationLabel(newer), "Auxiliar Fiscal");
 });
 
-test("realtime URL uses the backend chat namespace", () => {
-  assert.match(chatRealtimeUrl(), /\/chat$/);
+test("realtime URL defaults to the browser origin and supports a public override", () => {
+  assert.equal(chatRealtimeUrl(undefined, "https://orion.example.com"), "https://orion.example.com/chat");
+  assert.equal(
+    chatRealtimeUrl("https://realtime.example.com/", "https://orion.example.com"),
+    "https://realtime.example.com/chat",
+  );
 });

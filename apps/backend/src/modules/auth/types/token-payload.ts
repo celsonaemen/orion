@@ -13,6 +13,7 @@ export type RefreshTokenPayload = {
 };
 
 export type RealtimeTicketPayload = {
+  exp?: number;
   sub: string;
   sessionId: string;
   tokenUse: "realtime";

@@ -4,11 +4,11 @@
 
 Este documento separa o estado técnico já existente do alvo funcional atual. Código existente não deve ser confundido com requisito do produto, e item planejado não deve ser descrito como implementado sem código e validação correspondentes.
 
-O alvo imediato é um chat interno simples. A arquitetura de uma plataforma completa de gestão do escritório permanece como visão de longo prazo e não deve aumentar o escopo do MVP atual.
+O alvo imediato é publicar e operar o chat interno. A arquitetura de uma plataforma completa de gestão do escritório permanece como visão de longo prazo e não deve aumentar o escopo do chat atual.
 
-## Arquitetura do MVP atual (simples)
+## Arquitetura do chat atual
 
-O MVP deve suportar somente:
+O chat atual suporta:
 
 - usuários autenticados;
 - lista de conversas do usuário;
@@ -16,7 +16,7 @@ O MVP deve suportar somente:
 - grupos simples opcionais, sem vínculo obrigatório com setor ou cargo;
 - mensagens em tempo real.
 
-Regras arquiteturais do MVP:
+Regras arquiteturais do chat:
 
 - o chat exige autenticação e participação na conversa;
 - cargo, hierarquia e setor não controlam quem pode conversar nesta fase;
@@ -29,7 +29,7 @@ Regras arquiteturais do MVP:
 
 O repositório possui autenticação, administração inicial de usuários e setores e uma implementação anterior de chat por canais setoriais, permissões específicas, mensagens persistidas e polling.
 
-O MVP simples foi implementado em uma trilha separada: pesquisa de usuários ativos, conversas diretas idempotentes, participantes, mensagens persistidas e entrega em tempo real por Socket.IO. A base anterior de canais permanece preservada, mas não representa o contrato funcional atual.
+O chat direto foi implementado em uma trilha separada: pesquisa de usuários ativos, conversas idempotentes, participantes, mensagens persistidas e entrega em tempo real por Socket.IO. A base anterior de canais permanece preservada, mas não representa o contrato funcional atual.
 
 ## Monorepo
 
@@ -85,7 +85,7 @@ Rotas placeholder existentes:
 - administração;
 - configurações.
 
-Responsabilidades do frontend no MVP simples:
+Responsabilidades do frontend no chat:
 
 - autenticar o usuário pelo fluxo existente;
 - exibir a lista de conversas do usuário;
@@ -95,7 +95,7 @@ Responsabilidades do frontend no MVP simples:
 - não acessar diretamente o banco;
 - não concentrar regra de negócio crítica.
 
-Rotas BFF implementadas para o MVP simples:
+Rotas BFF implementadas para o chat:
 
 - `GET /api/chat/users`;
 - `GET /api/chat/conversations`;
@@ -141,7 +141,7 @@ Endpoints atuais:
 - `POST /chat/conversations/:conversationId/messages`;
 - `POST /chat/realtime-ticket`.
 
-Responsabilidades do backend no MVP simples:
+Responsabilidades do backend no chat:
 
 - validar autenticação e sessão;
 - limitar cada conversa aos seus participantes;
@@ -196,13 +196,29 @@ Migrations existentes:
 
 `Conversation` identifica a conversa e mantém `directKey` única para pares 1:1. `ConversationParticipant` controla participação, e `ConversationMessage` persiste mensagens de até 4.000 caracteres com índice para paginação cronológica. O modelo de grupos simples ainda não foi validado na aplicação, embora o enum reserve o tipo `GROUP`.
 
+## Topologia de produção
+
+`compose.production.yml` isola a publicação da infraestrutura local e coordena:
+
+- PostgreSQL 17 com volume persistente não exposto ao host;
+- job de `prisma migrate deploy` concluído antes do backend;
+- backend NestJS em imagem Node.js, usuário sem privilégios e health check de banco;
+- frontend Next.js em saída `standalone`, com health check do backend;
+- gateway Nginx como único serviço exposto, encaminhando `/socket.io/` ao backend e o restante ao frontend.
+
+O BFF usa `BACKEND_URL`, variável somente de servidor. O navegador usa a própria origem para o Socket.IO por padrão; `NEXT_PUBLIC_REALTIME_URL` existe apenas para uma topologia explicitamente separada. O ambiente de produção exige `FRONTEND_ORIGIN` HTTPS e segredos JWT distintos com tamanho mínimo.
+
+Migrations não executam seed. Uma instalação vazia usa `bootstrap-production.ts` manualmente para criar a fundação de acesso e o primeiro administrador sem versionar credenciais.
+
+A topologia atual mantém uma instância de backend. Escala horizontal exige sticky sessions e adapter compartilhado do Socket.IO.
+
 ## Mensagens em tempo real
 
 Mensagens em tempo real estão implementadas com Socket.IO e o gateway NestJS `ChatRealtimeGateway`, no namespace `/chat`.
 
 O navegador solicita pelo BFF um ticket JWT de 60 segundos. O gateway valida ticket, usuário ativo e sessão antes de associar o socket à sala `user:<userId>`. Quando uma mensagem é persistida, o backend emite `conversation.message` e `conversation.updated` somente às salas dos participantes.
 
-O cliente renova o ticket ao reconectar e mantém access token e refresh token fora do JavaScript. O polling de 4 segundos permanece apenas no chat legado por canais. Presença, indicador de digitação, lido/não lido e notificações não fazem parte do MVP simples.
+O cliente renova o ticket ao reconectar e mantém access token e refresh token fora do JavaScript. A conexão é encerrada no vencimento do ticket para revalidar a sessão. O polling de 4 segundos permanece apenas no chat legado por canais. Presença, indicador de digitação, lido/não lido e notificações não estão implementados neste release.
 
 ## Autenticação e BFF
 
@@ -230,11 +246,11 @@ Autenticação frontend já implementada:
 - coordenação de renovações simultâneas;
 - preservação da sessão local em falhas transitórias.
 
-O BFF continua sendo o caminho entre navegador e backend no MVP simples. Para o Socket.IO, ele retorna somente um ticket curto e limitado à conexão em tempo real; access token, refresh token e segredos não são expostos ao JavaScript nem versionados.
+O BFF continua sendo o caminho entre navegador e backend. Para o Socket.IO, ele retorna somente um ticket curto e limitado à conexão em tempo real; access token, refresh token e segredos não são expostos ao JavaScript nem versionados.
 
 ## Autorização
 
-### MVP simples de chat
+### Chat direto
 
 A autorização é deliberadamente mínima:
 
@@ -242,7 +258,7 @@ A autorização é deliberadamente mínima:
 - o usuário pode conversar com outro usuário autenticado;
 - somente participantes podem acessar uma conversa;
 - cargo, nível hierárquico e setor não concedem nem retiram acesso ao chat nesta fase;
-- `chat.access`, `chat.channels.manage` e `chat.read_all` não são requisitos do MVP simples.
+- `chat.access`, `chat.channels.manage` e `chat.read_all` pertencem às rotas legadas de canais e não restringem conversas diretas.
 
 ### Administração existente
 
@@ -254,15 +270,15 @@ O RBAC já implementado para usuários e setores continua existindo no código a
 - `@CurrentUser()`;
 - permissões explícitas nos endpoints administrativos.
 
-Esse RBAC administrativo não deve ser usado como requisito para iniciar ou concluir o MVP simples de chat.
+Esse RBAC administrativo não controla a participação nas conversas diretas atuais.
 
 ### Visão de longo prazo
 
-Depois da validação do MVP, poderão ser reavaliados hierarquia Gerente, Coordenador, Setorial e Auxiliar, canais por setor, supervisão gerencial e permissões detalhadas de comunicação.
+Evoluções futuras poderão reavaliar hierarquia, canais por setor, supervisão gerencial e permissões detalhadas de comunicação.
 
 ## Auditoria
 
-No MVP simples, somente login e logout são requisitos de auditoria.
+No chat atual, login e logout continuam auditados.
 
 Não é requisito auditar:
 
@@ -271,13 +287,13 @@ Não é requisito auditar:
 - envio de mensagem;
 - cada ação interna do chat.
 
-O código existente já registra outros eventos administrativos e criação de canal. Esses registros pertencem à implementação anterior ou aos módulos administrativos; não são critério de aceite do MVP simples e não serão alterados nesta etapa documental.
+O código existente registra também eventos administrativos e criação de canal. Mensagens não são copiadas para logs de auditoria.
 
 Auditoria detalhada de ações sensíveis, supervisão gerencial e integrações permanece como visão de longo prazo.
 
-## Fora do escopo arquitetural do MVP
+## Recursos não implementados no chat atual
 
-Não fazem parte do MVP simples:
+Não estão implementados neste release:
 
 - canais obrigatórios por setor;
 - RBAC completo do chat;

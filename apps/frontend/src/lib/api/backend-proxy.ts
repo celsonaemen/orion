@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/cookie-names";
 import { clearAuthCookies, setAuthCookies } from "@/lib/auth/cookies";
 import { refreshWithSingleFlight } from "@/lib/auth/refresh-session";
+import { getBackendBaseUrl } from "@/lib/config/backend-url";
 
 type ProxyMethod = "GET" | "POST" | "PATCH";
 
@@ -11,10 +12,6 @@ type ProxyOptions = {
   body?: unknown;
   method: ProxyMethod;
 };
-
-function getBackendBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001").replace(/\/+$/, "");
-}
 
 async function readJson(response: Response) {
   try {

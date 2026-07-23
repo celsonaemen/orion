@@ -233,7 +233,7 @@ export class AuthService {
     };
   }
 
-  async validateRealtimeTicket(ticket: string): Promise<AuthenticatedUser> {
+  async validateRealtimeTicket(ticket: string) {
     let payload: RealtimeTicketPayload;
 
     try {
@@ -248,7 +248,14 @@ export class AuthService {
       throw new UnauthorizedException("Invalid realtime ticket.");
     }
 
-    return this.validateActiveSession(payload.sub, payload.sessionId);
+    if (typeof payload.exp !== "number") {
+      throw new UnauthorizedException("Invalid realtime ticket.");
+    }
+
+    return {
+      expiresAt: new Date(payload.exp * 1000),
+      user: await this.validateActiveSession(payload.sub, payload.sessionId),
+    };
   }
 
   private async validateActiveSession(userId: string, sessionId: string) {

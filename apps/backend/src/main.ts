@@ -3,9 +3,13 @@ import { NestFactory } from "@nestjs/core";
 import "dotenv/config";
 
 import { AppModule } from "./app.module";
+import { readRuntimeConfig } from "./config/runtime-config";
 
 async function bootstrap() {
+  const runtimeConfig = readRuntimeConfig();
   const app = await NestFactory.create(AppModule);
+
+  app.enableShutdownHooks();
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -15,8 +19,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = Number(process.env.BACKEND_PORT ?? 3001);
-  await app.listen(port);
+  await app.listen(runtimeConfig.port, runtimeConfig.host);
 }
 
 void bootstrap();

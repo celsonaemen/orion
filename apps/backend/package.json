@@ -9,11 +9,12 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src",
     "start": "node dist/main.js",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.scripts.json",
     "test": "vitest run --fileParallelism=false",
     "db:generate": "prisma generate --config prisma.config.ts",
     "db:migrate": "prisma migrate dev --config prisma.config.ts --name add_chat_mvp",
     "db:migrate:deploy": "prisma migrate deploy --config prisma.config.ts",
+    "db:bootstrap:production": "tsx prisma/bootstrap-production.ts",
     "db:seed": "prisma db seed --config prisma.config.ts",
     "db:studio": "prisma studio --config prisma.config.ts",
     "db:reset": "prisma migrate reset --config prisma.config.ts"

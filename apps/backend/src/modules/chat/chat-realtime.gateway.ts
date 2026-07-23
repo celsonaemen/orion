@@ -6,12 +6,10 @@ import {
 } from "@nestjs/websockets";
 import type { Namespace, Socket } from "socket.io";
 
+import { getAllowedFrontendOrigins } from "../../config/runtime-config";
 import { AuthService } from "../auth/auth.service";
 
-const allowedOrigins = (process.env.FRONTEND_ORIGIN ?? "http://localhost:3000")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = getAllowedFrontendOrigins();
 
 type RealtimeMessage = {
   author: {
@@ -52,8 +50,9 @@ export class ChatRealtimeGateway implements OnGatewayConnection, OnGatewayInit {
       }
 
       try {
-        const user = await this.authService.validateRealtimeTicket(ticket);
-        socket.data.userId = user.id;
+        const realtimeSession = await this.authService.validateRealtimeTicket(ticket);
+        socket.data.realtimeExpiresAt = realtimeSession.expiresAt.getTime();
+        socket.data.userId = realtimeSession.user.id;
         next();
       } catch {
         next(new Error("unauthorized"));
@@ -70,6 +69,18 @@ export class ChatRealtimeGateway implements OnGatewayConnection, OnGatewayInit {
     }
 
     await client.join(this.userRoom(userId));
+
+    const realtimeExpiresAt = client.data.realtimeExpiresAt;
+    if (typeof realtimeExpiresAt !== "number") {
+      client.disconnect(true);
+      return;
+    }
+
+    const expiryTimer = setTimeout(
+      () => client.disconnect(true),
+      Math.max(0, realtimeExpiresAt - Date.now()),
+    );
+    client.once("disconnect", () => clearTimeout(expiryTimer));
   }
 
   publishConversationUpdated(conversationId: string, participantIds: string[]) {

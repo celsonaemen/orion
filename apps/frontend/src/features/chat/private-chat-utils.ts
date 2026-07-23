@@ -30,7 +30,10 @@ export function privateConversationLabel(conversation: PrivateConversation) {
   return conversation.title ?? "Grupo";
 }
 
-export function chatRealtimeUrl() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+export function chatRealtimeUrl(
+  configuredUrl = process.env.NEXT_PUBLIC_REALTIME_URL,
+  browserOrigin = typeof window === "undefined" ? undefined : window.location.origin,
+) {
+  const baseUrl = configuredUrl?.trim() || browserOrigin || "http://localhost:3001";
   return `${baseUrl.replace(/\/+$/, "")}/chat`;
 }

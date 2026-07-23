@@ -1,253 +1,81 @@
 # Orion
 
-Orion é uma plataforma web interna planejada para um escritório contábil brasileiro.
+Orion é uma aplicação web interna para comunicação e administração básica de um escritório contábil.
 
-O objetivo é criar uma central própria para comunicação interna, usuários, setores, empresas, mensagens, grupos, notificações, permissões, auditoria e dashboard operacional.
+## Funcionalidades atuais
 
-## Situação atual
+- autenticação com sessão persistida, rotação de refresh token e cookies `HttpOnly`;
+- chat direto entre colaboradores autenticados;
+- mensagens persistidas e histórico paginado;
+- entrega em tempo real por Socket.IO;
+- administração de usuários e setores com permissões explícitas;
+- auditoria de autenticação e operações administrativas;
+- interface responsiva em Next.js;
+- API NestJS e PostgreSQL com Prisma;
+- containers de produção com migrations e health checks coordenados.
 
-O projeto esta em construcao, com fundacao validada, autenticacao inicial e administracao de usuarios/setores implementada e validada nesta branch.
+O Orion não substitui Alterdata, Acessórias, e-CAC nem sistemas oficiais. Integrações externas, IA e RAG não estão implementados.
 
-Estado atual:
-
-- monorepo pnpm criado;
-- frontend inicial criado em `apps/frontend`;
-- login frontend, BFF de autenticação e dashboard autenticado inicial criados;
-- App Shell autenticado inicial criado para navegação principal e módulos futuros;
-- administração inicial de usuários e setores implementada em `/users` e `/sectors`;
-- backend inicial criado em `apps/backend`;
-- pacote compartilhado criado em `packages/shared`;
-- PostgreSQL local preparado via `docker-compose.yml`;
-- Prisma 7 configurado no backend;
-- modelos iniciais de identidade, acesso, sessão e auditoria criados;
-- migration inicial criada para usuários, setores, cargos, permissões, sessões e auditoria;
-- seed fictício criado para desenvolvimento local;
-- endpoint `GET /health` criado no backend com verificação de banco;
-- autenticação backend inicial implementada com login, refresh, logout e usuário atual;
-- guards iniciais de JWT e permissões explícitas implementados;
-- chat ainda não implementado;
-- banco local validado com Docker/PostgreSQL em `orion-postgres`;
-- frontend e backend ainda não rodam em Docker;
-- integrações externas, IA e RAG ainda não implementados.
-
-## Visão do produto
-
-O Orion será uma camada interna de organização e comunicação do escritório. Ele não substitui Alterdata, Acessórias, e-CAC, sistemas da Receita Federal, sistemas oficiais ou provedores de e-mail.
-
-Esses sistemas poderão ser integrados no futuro, quando houver análise técnica, autorização e desenho seguro.
-
-## Estrutura do monorepo
+## Estrutura
 
 ```text
 apps/
-  frontend/
-  backend/
+  backend/       API NestJS, Prisma e Socket.IO
+  frontend/      Next.js, BFF e interface web
 packages/
-  shared/
-scripts/
-docs/
-.ai/
+  shared/        tipos compartilhados
+deploy/          configuração do gateway de produção
+docs/            documentação funcional e operacional
+.ai/             contexto e decisões oficiais do projeto
 ```
 
-## Aplicações
+## Desenvolvimento local
 
-### Frontend
-
-Local: `apps/frontend`
-
-Stack inicial:
-
-- Next.js;
-- React;
-- TypeScript;
-- Tailwind CSS;
-- App Router.
-
-Tela atual:
-
-- nome Orion;
-- texto "Comunicação interna da contabilidade";
-- indicação "Orion Chat — Fundação técnica";
-- status visual de frontend funcionando.
-
-### Backend
-
-Local: `apps/backend`
-
-Stack inicial:
-
-- NestJS;
-- Node.js;
-- TypeScript;
-- validação preparada.
-
-Endpoint atual:
-
-```text
-GET /health
-```
-
-Resposta esperada:
-
-```json
-{
-  "status": "ok",
-  "service": "orion-backend",
-  "database": "connected"
-}
-```
-
-Se o banco estiver indisponível, o endpoint deve responder erro de serviço sem expor URL, usuário, senha ou stack trace.
-
-Endpoints de autenticação atuais:
-
-```text
-POST /auth/login
-POST /auth/refresh
-POST /auth/logout
-GET /auth/me
-```
-
-### Autenticação no frontend
-
-O frontend usa um BFF em Route Handlers do Next.js:
-
-```text
-POST /api/auth/login
-POST /api/auth/refresh
-POST /api/auth/logout
-GET /api/auth/me
-```
-
-O navegador não acessa os tokens diretamente. O BFF chama o backend NestJS, armazena access token e refresh token em cookies `HttpOnly`, usa `Secure` em produção e `SameSite=Lax`, e retorna ao cliente apenas os dados do usuário autenticado.
-
-Rotas atuais:
-
-```text
-/login
-/dashboard
-/chat
-/companies
-/users
-/sectors
-/notifications
-/admin
-/settings
-```
-
-As rotas autenticadas usam App Shell compartilhado, middleware e validação real da sessão via BFF. `/users` e `/sectors` possuem administração inicial real; módulos como chat, empresas e notificações seguem como placeholders "Em breve" nesta fase.
-
-O App Shell inclui:
-
-- sidebar desktop com suporte a recolher/expandir;
-- navegação mobile em drawer;
-- header com usuário, cargo, setor, notificações placeholder, tema e menu de usuário;
-- logout pelo fluxo existente de autenticação;
-- tema claro/escuro com preferência local e suporte à preferência do sistema.
-
-### Shared
-
-Local: `packages/shared`
-
-Pacote TypeScript reutilizável com tipos compartilhados iniciais.
-
-## Scripts
-
-Na raiz do repositório:
+Pré-requisitos: Node.js 24, Corepack, pnpm e Docker Desktop.
 
 ```powershell
-pnpm install
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm dev
-```
-
-Scripts de banco:
-
-```powershell
-pnpm db:generate
-pnpm db:migrate
-pnpm db:migrate:deploy
-pnpm db:seed
-pnpm db:studio
-pnpm db:reset
-```
-
-`pnpm db:reset` é destrutivo e deve ser usado somente em desenvolvimento local.
-
-## Banco de dados local
-
-O PostgreSQL local é preparado por Docker Compose:
-
-```powershell
+corepack pnpm install --frozen-lockfile
 docker compose up -d postgres
-pnpm db:migrate
-pnpm db:seed
+
+$env:DATABASE_URL="postgresql://orion:orion_dev@127.0.0.1:5433/orion?schema=public"
+$env:JWT_SECRET="defina-um-segredo-local"
+$env:JWT_REFRESH_SECRET="defina-outro-segredo-local"
+
+corepack pnpm db:generate
+corepack pnpm db:migrate:deploy
+corepack pnpm db:seed
+corepack pnpm dev
 ```
 
-O seed usa apenas dados fictícios e e-mails `@orion.local`. Para desenvolvimento local, os usuários fictícios usam a senha `OrionDev123!`. Essa senha não deve ser usada fora do ambiente local.
+O frontend usa `http://localhost:3000` e o backend `http://localhost:3001`. O seed contém somente usuários fictícios `@orion.local` e não pode ser usado em produção.
 
-Validação local confirmada em 2026-07-14:
+## Qualidade
 
-- container `orion-postgres` saudável com imagem `postgres:17-alpine`;
-- migration `20260713203600_init_identity_and_access` aplicada;
-- seed fictício executado;
-- `GET /health` retornando `database: "connected"`;
-- `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` executados com sucesso.
+```powershell
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm build
+```
 
-Para testar autenticação localmente, configure `JWT_SECRET` e `JWT_REFRESH_SECRET` fora do Git.
+## Deploy
 
-## Stack planejada
+O deploy recomendado usa [compose.production.yml](./compose.production.yml) com frontend e backend em imagens próprias, PostgreSQL persistente e Nginx como gateway de mesma origem.
 
-Frontend:
+1. Copie `.env.production.example` para `.env.production`.
+2. Configure banco, segredos JWT e a origem HTTPS pública.
+3. Suba a stack com `corepack pnpm deploy:up`.
+4. Em banco vazio, execute o bootstrap manual do primeiro administrador.
+5. Confirme `https://seu-dominio/healthz`.
 
-- Next.js;
-- React;
-- TypeScript;
-- Tailwind CSS;
-- Shadcn/UI em fase futura.
+Instruções completas, atualização e limitações de escala estão em [docs/deployment.md](./docs/deployment.md).
 
-Backend:
+## Segurança
 
-- NestJS;
-- Node.js;
-- TypeScript.
+- nunca versione `.env`, senhas, tokens ou chaves;
+- use HTTPS em qualquer ambiente publicado;
+- não use dados reais de clientes em seeds ou testes;
+- faça backup do PostgreSQL antes de atualizações;
+- não execute `db:reset` nem remova volumes em produção.
 
-Dados e infraestrutura planejados:
-
-- PostgreSQL;
-- Prisma;
-- Socket.IO;
-- Docker;
-- Docker Compose.
-
-## Documentação
-
-Contexto e memória permanente:
-
-- `.ai/PROJECT_CONTEXT.md`;
-- `.ai/ARCHITECTURE.md`;
-- `.ai/ROADMAP.md`;
-- `.ai/DECISIONS.md`;
-- `.ai/CODING_RULES.md`;
-- `.ai/SECURITY.md`;
-- `.ai/CURRENT_STATE.md`.
-
-Documentação geral:
-
-- `docs/overview.md`;
-- `docs/roles-and-permissions.md`;
-- `docs/database.md`;
-- `docs/authentication.md`;
-- `docs/admin-users-sectors.md`;
-- `docs/glossary.md`.
-
-## Avisos importantes
-
-- Projeto em construção.
-- Não usar dados reais.
-- Não versionar senhas, tokens ou `.env`.
-- Não armazenar documentos contábeis no repositório.
-- Não afirmar que algo está implementado sem verificar o código.
+Consulte [docs/chat.md](./docs/chat.md), [docs/authentication.md](./docs/authentication.md) e [.ai/SECURITY.md](./.ai/SECURITY.md).

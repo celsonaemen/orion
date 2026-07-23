@@ -9,7 +9,7 @@ import { createPrismaClient } from "../src/database/prisma/prisma-client.factory
 const DEV_PASSWORD = "OrionDev123!";
 const PASSWORD_SALT_ROUNDS = 10;
 
-const sectors = [
+export const sectors = [
   { name: "Gerência", slug: "gerencia" },
   { name: "Fiscal", slug: "fiscal" },
   { name: "Contábil", slug: "contabil" },
@@ -19,7 +19,7 @@ const sectors = [
   { name: "Administrativo", slug: "administrativo" },
 ] satisfies Prisma.SectorCreateInput[];
 
-const roles = [
+export const roles = [
   {
     name: "Gerente",
     slug: "gerente",
@@ -46,7 +46,7 @@ const roles = [
   },
 ] satisfies Prisma.RoleCreateInput[];
 
-const permissions = [
+export const permissions = [
   ["users.read", "Ler usuários."],
   ["users.create", "Criar usuários."],
   ["users.update", "Atualizar usuários."],
@@ -65,7 +65,7 @@ const permissions = [
   ["chat.read_all", "Ler canais de todos os setores ativos."],
 ] as const;
 
-const rolePermissions = {
+export const rolePermissions = {
   gerente: [
     "users.read",
     "users.create",

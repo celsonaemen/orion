@@ -2,9 +2,9 @@
 
 ## Estado geral
 
-A Fase 0 possui fundação técnica validada. Partes da Fase 1 já foram implementadas, mas a prioridade imediata passa a ser a Fase 2A: validar um chat interno simples com uso real.
+A Fase 0 possui fundação técnica validada. Partes da Fase 1 já foram implementadas e a prioridade imediata é publicar e operar o chat interno.
 
-O MVP de comunicação não deve aguardar a conclusão de uma plataforma completa de gestão do escritório. Recursos robustos de setores, hierarquia, auditoria, integrações, IA e RAG permanecem no roadmap, mas não fazem parte do MVP atual.
+O chat não deve aguardar a conclusão de uma plataforma completa de gestão do escritório. Recursos adicionais de setores, hierarquia, auditoria, integrações, IA e RAG permanecem no roadmap e exigem decisões próprias.
 
 ## Fase 0 - Fundação
 
@@ -26,7 +26,7 @@ Entregas validadas:
 
 ## Fase 1 - Orion Core
 
-Status: parcialmente implementada; o necessário para autenticar usuários e sustentar o MVP de comunicação está disponível.
+Status: parcialmente implementada; o necessário para autenticar usuários e operar o chat está disponível.
 
 Já implementado:
 
@@ -38,7 +38,7 @@ Já implementado:
 - auditoria básica já existente;
 - BFF Next.js para comunicação com o backend.
 
-Adiado até depois da validação do MVP simples:
+Adiado até depois da publicação do chat:
 
 - CRUD administrativo de cargos e permissões;
 - empresas;
@@ -48,11 +48,11 @@ Adiado até depois da validação do MVP simples:
 
 ## Fase 2 - Comunicação
 
-Status: reorientada para um MVP simples. O repositório mantém a implementação anterior de canais setoriais com polling como base legada, sem tratá-la como contrato funcional do MVP atual.
+Status: chat direto implementado, validado localmente e empacotado para publicação. O repositório mantém a implementação anterior de canais setoriais com polling como base legada.
 
-### Fase 2A - MVP simples
+### Fase 2A - Chat direto
 
-Status: implementada tecnicamente e aguardando validação com uso real pelos colaboradores.
+Status: implementada tecnicamente e preparada para validação no ambiente publicado.
 
 Escopo obrigatório:
 
@@ -61,7 +61,7 @@ Escopo obrigatório:
 - conversas diretas entre dois usuários autenticados;
 - mensagens enviadas e recebidas em tempo real.
 
-Escopo opcional, somente se não atrasar a validação:
+Evolução possível após uso real:
 
 - grupos simples sem vínculo obrigatório com setor ou cargo.
 
@@ -80,7 +80,7 @@ Critério de saída:
 - o fluxo funciona de ponta a ponta e pode ser validado com uso real;
 - nenhum recurso fora do escopo simples bloqueia a entrega.
 
-Validação técnica concluída em 2026-07-16:
+Validação funcional concluída em 2026-07-16:
 
 - pesquisa de colaborador e criação idempotente de conversa 1:1;
 - histórico persistido e paginado;
@@ -91,15 +91,29 @@ Validação técnica concluída em 2026-07-16:
 - isolamento da conversa aos participantes;
 - lint, typecheck, 43 testes backend, 29 testes frontend e build aprovados.
 
-Pendente para concluir a validação do produto:
+Preparação de publicação concluída em 2026-07-17:
 
+- imagens Docker de frontend e backend;
+- Next.js `standalone`;
+- migrations coordenadas antes da aplicação;
+- health checks da stack completa;
+- gateway de mesma origem para HTTP e Socket.IO;
+- configuração externa e validação de segredos/origem;
+- bootstrap manual do primeiro administrador;
+- stack isolada construída e iniciada com todos os serviços saudáveis.
+
+Pendente no ambiente de destino:
+
+- domínio e terminação TLS;
+- segredos definitivos;
+- rotina de backup e monitoramento;
 - uso real pelos colaboradores;
 - registrar feedback e corrigir problemas observados no fluxo diário;
 - decidir se grupos simples são necessários antes da Fase 2B.
 
 ### Fase 2B - Comunicação robusta
 
-Status: planejada para depois da validação do MVP simples.
+Status: planejada para depois da validação do chat publicado.
 
 Possibilidades futuras:
 

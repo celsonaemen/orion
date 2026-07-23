@@ -1,4 +1,5 @@
 import type { BackendAuthResponse, SessionResponse } from "@/types/auth";
+import { getBackendBaseUrl } from "@/lib/config/backend-url";
 
 import { isBackendAuthResponse, isBackendMeResponse } from "./response-guards";
 
@@ -23,10 +24,6 @@ type LoginPayload = {
   email: string;
   password: string;
 };
-
-function getBackendBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001").replace(/\/+$/, "");
-}
 
 async function readJson(response: Response) {
   try {

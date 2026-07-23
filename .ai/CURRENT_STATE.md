@@ -2,7 +2,7 @@
 
 ## Data
 
-2026-07-16
+2026-07-17
 
 ## Estado do projeto
 
@@ -59,7 +59,7 @@
 - Validacao no Edge concluiu login, listagem de canais, envio `201`, persistencia apos recarregar, cookies `HttpOnly`, ausencia de erros de console/API e layout desktop/mobile sem overflow.
 - O modo `dev` do backend foi corrigido para `tsc --watch` mais `node --watch`, preservando os metadados de injecao de dependencia do NestJS.
 - A rota raiz `/` redireciona para `/dashboard`; sem cookie de sessao, o middleware encaminha para `/login`.
-- MVP simples de conversas privadas implementado em `/chat`, com pesquisa por nome/e-mail, criação idempotente de conversa 1:1, lista de conversas, histórico paginado e envio de mensagens.
+- Chat operacional implementado em `/chat`, com pesquisa por nome/e-mail, criação idempotente de conversa 1:1, lista de conversas, histórico paginado e envio de mensagens.
 - Conversas privadas exigem somente autenticação e participação; cargo, hierarquia e setor não restringem quem pode conversar nesta fase.
 - Socket.IO foi configurado no namespace `/chat`. O navegador obtém pelo BFF um ticket JWT de 60 segundos, sem receber o access token armazenado em cookie `HttpOnly`.
 - Migration `20260716170000_add_private_conversations` aplicada com sucesso ao PostgreSQL local.
@@ -68,16 +68,21 @@
 - A conversa real usada na validacao E2E foi preservada; somente a conversa, mensagens, sessoes e tokens criados pelo proprio teste foram removidos por identificadores exatos.
 - Nenhuma integração implementada.
 - Nenhum CRUD administrativo de cargos ou permissoes implementado.
-- Frontend e backend ainda não foram colocados em Docker.
+- Frontend e backend possuem imagens Docker de produção; o Next.js usa saída `standalone` e o NestJS executa como usuário sem privilégios.
+- `compose.production.yml` orquestra PostgreSQL isolado, migration antes da aplicação, backend, frontend e gateway Nginx com health checks.
+- O BFF usa `BACKEND_URL` somente no servidor. O Socket.IO usa a mesma origem do navegador por padrão ou `NEXT_PUBLIC_REALTIME_URL` quando configurado explicitamente.
+- A configuração backend valida banco, segredos JWT, porta e origem HTTPS antes de iniciar em produção.
+- O ticket de tempo real limita também a duração da conexão; o cliente reconecta com nova validação de sessão.
+- Instalações vazias usam bootstrap manual e idempotente do primeiro administrador, sem executar o seed fictício em produção.
 - Nenhuma IA ou RAG implementados.
 
 ## Fase atual
 
-Fase 2A - MVP simples de comunicação implementado tecnicamente e aguardando validação com uso real pelos colaboradores.
+Fase 2 - Chat interno funcional e empacotado para publicação.
 
 ## Próximo passo
 
-Validar conversas privadas com colaboradores reais e revisar a branch `feature/chat-mvp-v1` antes de qualquer publicação. Grupos simples permanecem opcionais e ainda não foram implementados.
+Configurar domínio HTTPS, segredos e backup no ambiente de destino; executar o bootstrap do primeiro administrador e validar o chat com colaboradores no ambiente publicado.
 
 ## Observações
 
@@ -86,4 +91,4 @@ Validar conversas privadas com colaboradores reais e revisar a branch `feature/c
 - Antes de qualquer implementação, decisões relevantes devem ser conferidas em `.ai/DECISIONS.md`.
 - `.env` não foi criado nem versionado; `DATABASE_URL` foi usada somente como variável local de processo durante a validação.
 - Para rodar testes de integração de banco e auth, defina `DATABASE_URL`, `JWT_SECRET` e `JWT_REFRESH_SECRET` apenas no ambiente local.
-- O MVP simples usa Socket.IO para conversas privadas. O chat legado por canais continua usando polling; grupos, presença, confirmação de leitura e notificações permanecem fora do escopo implementado.
+- O chat usa Socket.IO para conversas privadas. O chat legado por canais continua usando polling; grupos, presença, confirmação de leitura e notificações não estão implementados neste release.
