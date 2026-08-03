@@ -244,10 +244,3 @@ Documentação geral:
 - `docs/admin-users-sectors.md`;
 - `docs/glossary.md`.
 
-## Avisos importantes
-
-- Projeto em construção.
-- Não usar dados reais.
-- Não versionar senhas, tokens ou `.env`.
-- Não armazenar documentos contábeis no repositório.
-- Não afirmar que algo está implementado sem verificar o código.
